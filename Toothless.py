@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 from ircutils import bot, format
-import random, re
+import random, re, time
 
 const_regex = "Toothless\$\s+(.*)\s+->\s+(.*)\s*"
+const_treply=0.00
+const_tcommand=0.00
 
 def SaveCommand(left, right):
 	print("saving command...")
@@ -39,17 +41,20 @@ class ToothlessBot(bot.SimpleBot):
                                     event.params))
 
 	def on_channel_message(self, event):
+		global const_treply
+		global const_tcommand
 		err_msg = "tilts his head in confusion towards {0}"
 
 		msg_split = event.message.split()
 		if msg_split[0] == 'Toothless$':
 			print "missing arguments!"
-		else:	
+		elif time.time() >= const_treply + 10:	#checks the time
 			with open('commands.txt') as f:
 				for line in f:
 					f_command = re.match(r"Toothless\$\s+(.*)\s+->\s+(.*)\s*", line)
 					if f_command.group(1) in event.message:
 						print "found the following from your command: %s!" % f_command.group(2)
+						const_treply = time.time()	#updates the timer
 						if '{0}' in f_command.group(2):
 							self.send_action("#httyd", format.color(f_command.group(2).format(event.source), format.GREEN))
 						else:
@@ -60,11 +65,12 @@ class ToothlessBot(bot.SimpleBot):
 		try:
 			if m.group(0):
 				if len(event.message) <= 100:
-					if event.source in open('whitelist.txt').read():
+					if event.source in open('whitelist.txt').read() and time.time() >= const_treply + 45:	#checks the time
 						print "match"
 						with open('commands.txt', "a") as f:
 							f.write(("Toothless$ %s -> %s\n" % (m.group(1), m.group(2))))
 							print "command added!"
+							const_tcommand = time.time()	#updates the timer
 							self.send_action("#httyd", format.color("has been trained by {0}!".format(event.source), format.GREEN))
 					else:
 						self.send_action("#httyd", format.color("doesn't want to be trained by {0}".format(event.source), format.GREEN))
