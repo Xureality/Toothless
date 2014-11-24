@@ -93,7 +93,7 @@ class ToothlessBot(bot.SimpleBot):
 		elif command == 'TERMINATE' and event.source in open('admins.txt').read():
 			self.disconnect("I was promised a bag of fish")
 		elif command == 'IDENTIFY' and event.source in open('admins.txt').read():
-			self.send_message("NickServ", "IDENTIFY DivineDragonAss")
+			self.send_message("NickServ", "IDENTIFY XXX")
 		elif command == 'IGNORE_ME':
 			with open('exclude_users.txt', "a") as appendnick:
 				appendnick.write("\n%s" % event.source)
