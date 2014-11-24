@@ -1,0 +1,13 @@
+welcomingly nuzzles and licks {0}
+welcomingly nuzzles {0}
+welcomingly licks {0}
+welcomingly tail-slaps {0}
+playfully nuzzles and licks {0}
+playfully nuzzles {0}
+playfully licks {0}
+playfully tail-slaps {0}
+tosses a pebble at {0}
+joyfully waggles his tail at {0}'s arrival
+cheerfully waggles his tail at {0}'s arrival
+playfully waggles his tail at {0}'s arrival
+welcomes {0} with a cheerful warble
