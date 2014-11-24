@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from ircutils import bot, format
-import random, re
+import random, re, time
 
 const_regex = "Toothless\$\s+(.*)\s+->\s+(.*)\s*"
 const_treply=0.00
