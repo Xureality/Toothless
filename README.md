@@ -1,4 +1,9 @@
 Toothless
 =========
 
-interactive dragon irc bot
+A messily, horrendously and arsed-written Toothlessbot occupying space on #httyd on irc.editingarchive.com
+
+Commands
+========
+
+add stuff here
