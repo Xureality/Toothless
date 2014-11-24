@@ -2,7 +2,7 @@
 from ircutils import bot, format
 import random, re, time
 
-const_regex = "Toothless\$\s+(.*)\s+->\s+(.*)\s*"
+const_regex = r"Toothless\$\s+(.*)\s+->\s+(.*)\s*"
 const_treply=0.00
 const_tcommand=0.00
 
@@ -51,7 +51,7 @@ class ToothlessBot(bot.SimpleBot):
 		elif time.time() >= const_treply + 10:	#checks the time
 			with open('commands.txt') as f:
 				for line in f:
-					f_command = re.match(r"Toothless\$\s+(.*)\s+->\s+(.*)\s*", line)
+					f_command = re.match(const_regex, line)
 					if f_command.group(1) in event.message:
 						print "found the following from your command: %s!" % f_command.group(2)
 						const_treply = time.time()	#updates the timer
@@ -61,7 +61,7 @@ class ToothlessBot(bot.SimpleBot):
 							self.send_action("#httyd", format.color(f_command.group(2), format.GREEN))
 			f.close()
 
-		m = re.match(r"Toothless\$\s+(.*)\s+->\s+(.*)\s*", event.message)
+		m = re.match(const_regex, event.message)
 		try:
 			if m.group(0):
 				if len(event.message) <= 100:
