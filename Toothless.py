@@ -5,7 +5,7 @@ import random, re, time
 __version__ = '0.2.1c "Gronckle"' # increment this every pull/update
 
 const_regex = r"Toothless\$\s+(.*)\s+->\s+(.*)\s*"
-const_deregex = r"Toothlesss\*\s+(.*)"
+const_deregex = r"Toothless\#\s+(.*)"
 const_treply=0.00
 const_tcommand=0.00
 err_msg = "tilts his head in confusion towards {0}"
@@ -179,6 +179,6 @@ class ToothlessBot(bot.SimpleBot):
 if __name__ == "__main__":
     echo = ToothlessBot("Toothless")
     echo.user = "Toothless"
-    echo.real_name = "ToothlessBot, by Tomako and Xureality"
+    echo.real_name = "ToothlessBot, by Tomako"
     echo.connect("irc.editingarchive.com", port=6697, use_ssl=True)
     echo.start()
