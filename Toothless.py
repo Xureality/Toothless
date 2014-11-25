@@ -43,6 +43,7 @@ class ToothlessBot(bot.SimpleBot):
 	def on_channel_message(self, event):
 		global const_treply
 		global const_tcommand
+		global const_regex			#just in case
 		err_msg = "tilts his head in confusion towards {0}"
 
 		msg_split = event.message.split()
@@ -52,7 +53,7 @@ class ToothlessBot(bot.SimpleBot):
 			with open('commands.txt') as f:
 				for line in f:
 					f_command = re.match(const_regex, line)
-					if f_command.group(1) in event.message:
+					if f_command.group(1).upper() in event.message.upper():				#forces everything to ALL CAPS because reasons
 						print "found the following from your command: %s!" % f_command.group(2)
 						const_treply = time.time()	#updates the timer
 						if '{0}' in f_command.group(2):
