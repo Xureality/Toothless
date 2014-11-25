@@ -2,6 +2,8 @@
 from ircutils import bot, format
 import random, re, time
 
+__version__ = '0.2' # increment this every pull/update
+
 const_regex = r"Toothless\$\s+(.*)\s+->\s+(.*)\s*"
 const_deregex = r"Toothless\!\s+(.*)"
 const_treply=0.00
@@ -33,7 +35,7 @@ class ToothlessBot(bot.SimpleBot):
 		if event.command in self.IGNORE_EVENTS:
 			return
 		
-		print('\t%s (%s->%s) %s' % (event.command,
+		print('\t%s (%s->%s) %s' % (event.command,		# debug, good to have when adding new stuff
                                     event.source, event.target,
                                     event.params))
 
@@ -132,7 +134,7 @@ class ToothlessBot(bot.SimpleBot):
 		elif command == 'TERMINATE' and event.source in open('admins.txt').read():
 			self.disconnect("I was promised a bag of fish")
 		elif command == 'IDENTIFY' and event.source in open('admins.txt').read():
-			self.send_message("NickServ", "IDENTIFY XXX")
+			self.send_message("NickServ", "IDENTIFY DivineDragonAss")
 		elif command == 'IGNORE_ME':
 			with open('exclude_users.txt', "a") as appendnick:
 				appendnick.write("\n%s" % event.source)
@@ -148,7 +150,7 @@ class ToothlessBot(bot.SimpleBot):
 				m = re.match(const_regex, line)
 				message = "%s -> %s" % (m.group(1), m.group(2))
 				self.send_message(event.source, message)
-		elif command == 'PURGE_COMMANDS' and event.source in open('admins.txt').read():
+		elif command == 'PURGE_COMMANDS_CONFIRM' and event.source in open('admins.txt').read():
 			open('commands.txt', "w").close()
 
 
