@@ -62,8 +62,8 @@ class ToothlessBot(bot.SimpleBot):
 								f.write(line)
 						self.send_action("#httyd", format.color("forgot one of his tricks!", format.GREEN))
 						f.close()
-					# else:   # should never execute
-						# self.send_action("#httyd", format.color("doesn't want to be trained by {0}".format(event.source), format.GREEN))
+					else:
+						self.send_action("#httyd", format.color("wont follow {0}'s instructions".format(event.source), format.GREEN))
 				else:
 					self.send_action("#httyd", format.color(err_msg.format(event.source), format.GREEN))
 		except AttributeError:
