@@ -2,7 +2,7 @@
 from ircutils import bot, format
 import random, re, time
 
-__version__ = '0.2' # increment this every pull/update
+__version__ = '0.2.1a "Gronckle"' # increment this every pull/update, "Gronckle" is current cool name version
 
 const_regex = r"Toothless\$\s+(.*)\s+->\s+(.*)\s*"
 const_deregex = r"Toothless\!\s+(.*)"
@@ -133,8 +133,8 @@ class ToothlessBot(bot.SimpleBot):
 			self.send_action(params[0], message)
 		elif command == 'TERMINATE' and event.source in open('admins.txt').read():
 			self.disconnect("I was promised a bag of fish")
-		elif command == 'IDENTIFY' and event.source in open('admins.txt').read():
-			self.send_message("NickServ", "IDENTIFY XXX")
+		elif command == 'IDENTIFY' and params and event.source in open('admins.txt').read():
+			self.send_message("NickServ", "IDENTIFY %s" % params)
 		elif command == 'IGNORE_ME':
 			with open('exclude_users.txt', "a") as appendnick:
 				appendnick.write("\n%s" % event.source)
