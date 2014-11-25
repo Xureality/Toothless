@@ -6,11 +6,7 @@ const_regex = r"Toothless\$\s+(.*)\s+->\s+(.*)\s*"
 const_deregex = r"Toothless\!\s+(.*)"
 const_treply=0.00
 const_tcommand=0.00
-
-def SaveCommand(left, right):
-	print("saving command...")
-	with open('commands.txt', "a").read() as commandlist:
-		commandlist.write(("\nToothless$ %s -> %s\n" % (left, right)))
+err_msg = "tilts his head in confusion towards {0}"
 
 class ToothlessBot(bot.SimpleBot):
 	IGNORE_EVENTS = set(('CONN_CONNECT', 'CTCP_VERSION', 'KICK',
@@ -45,17 +41,19 @@ class ToothlessBot(bot.SimpleBot):
 		global const_treply
 		global const_tcommand
 		global const_regex			#just in case
-		err_msg = "tilts his head in confusion towards {0}"
+		global const_deregex
+		global err_msg
 
 		msg_split = event.message.split()
 		if msg_split[0] == 'Toothless$':
-			print "missing arguments!"
+			pass
+			# print "missing arguments!"
 		elif time.time() >= const_treply + 10:	#checks the time
 			with open('commands.txt') as f:
 				for line in f:
 					f_command = re.match(const_regex, line)
-					if f_command.group(1).upper() in event.message.upper():				#forces everything to ALL CAPS because reasons
-						print "found the following from your command: %s!" % f_command.group(2)
+					if f_command.group(1).upper() in event.message.upper():	# for non-case-sensitivity
+						# print "found the following from your command: %s!" % f_command.group(2) # debug
 						const_treply = time.time()	#updates the timer
 						if '{0}' in f_command.group(2):
 							self.send_action("#httyd", format.color(f_command.group(2).format(event.source), format.GREEN))
@@ -79,14 +77,15 @@ class ToothlessBot(bot.SimpleBot):
 				else:
 					self.send_action("#httyd", format.color(err_msg.format(event.source), format.GREEN))
 		except AttributeError:
-			print "no match"
+			# print "no match" # debug
+			pass
 		
 		m = re.match(const_deregex, event.message)
 		try:
 			if m.group(0):
 				if len(event.message) <= 100:
 					if event.source in open('whitelist.txt').read():
-						print "match"
+						# print "match"
 						f = open("commands.txt","r")
 						lines = f.readlines()
 						f.close()
@@ -94,14 +93,15 @@ class ToothlessBot(bot.SimpleBot):
 						for line in lines:
 							if not re.search(m.group(1)+r'\s+->', line):
 								f.write(line)
-						self.send_action("#httyd", format.color("has been trained by {0}!".format(event.source), format.GREEN))
+						self.send_action("#httyd", format.color("has been untrained by {0}!".format(event.source), format.GREEN))
 						f.close()
 					else:
 						self.send_action("#httyd", format.color("doesn't want to be trained by {0}".format(event.source), format.GREEN))
 				else:
 					self.send_action("#httyd", format.color(err_msg.format(event.source), format.GREEN))
 		except AttributeError:
-			print "no match"
+			# print "no match"
+			pass
 
 	def on_ctcp_action(self, event):
 		global const_treply
