@@ -3,6 +3,7 @@ from ircutils import bot, format
 import random, re, time
 
 const_regex = r"Toothless\$\s+(.*)\s+->\s+(.*)\s*"
+const_deregex = r"Toothless\!\s+(.*)"
 const_treply=0.00
 const_tcommand=0.00
 
@@ -73,6 +74,28 @@ class ToothlessBot(bot.SimpleBot):
 							print "command added!"
 							const_tcommand = time.time()	#updates the timer
 							self.send_action("#httyd", format.color("has been trained by {0}!".format(event.source), format.GREEN))
+					else:
+						self.send_action("#httyd", format.color("doesn't want to be trained by {0}".format(event.source), format.GREEN))
+				else:
+					self.send_action("#httyd", format.color(err_msg.format(event.source), format.GREEN))
+		except AttributeError:
+			print "no match"
+		
+		m = re.match(const_deregex, event.message)
+		try:
+			if m.group(0):
+				if len(event.message) <= 100:
+					if event.source in open('whitelist.txt').read():
+						print "match"
+						f = open("commands.txt","r")
+						lines = f.readlines()
+						f.close()
+						f = open("commands.txt","w")
+						for line in lines:
+							if not re.search(m.group(1)+r'\s+->', line):
+								f.write(line)
+						self.send_action("#httyd", format.color("has been trained by {0}!".format(event.source), format.GREEN))
+						f.close()
 					else:
 						self.send_action("#httyd", format.color("doesn't want to be trained by {0}".format(event.source), format.GREEN))
 				else:
