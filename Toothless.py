@@ -140,6 +140,16 @@ class ToothlessBot(bot.SimpleBot):
 			with open('whitelist.txt', "a") as appendnick:
 				appendnick.write("\n%s" % params[0])
 				self.send_action(event.source, "has added %s to the whitelist!" % params[0])
+		elif command == 'LIST_COMMANDS':
+			f = open('commands.txt', "r")
+			lines = f.readlines()
+			f.close()
+			for line in lines:
+				m = re.match(const_regex, line)
+				message = "%s -> %s" % (m.group(1), m.group(2))
+				self.send_message(event.source, message)
+		elif command == 'PURGE_COMMANDS' and event.source in open('admins.txt').read():
+			open('commands.txt', "w").close()
 
 
 if __name__ == "__main__":
