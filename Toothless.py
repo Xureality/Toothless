@@ -103,6 +103,21 @@ class ToothlessBot(bot.SimpleBot):
 		except AttributeError:
 			print "no match"
 
+	def on_ctcp_action(self, event):
+		global const_treply
+		message = " ".join(''.join(s) for s in event.params)
+		if time.time() >= const_treply + 10:	#checks the time
+			with open('commands.txt') as f:
+				for line in f:
+					f_command = re.match(const_regex, line)
+					if f_command.group(1).upper() in message.upper():				#forces everything to ALL CAPS because reasons
+						const_treply = time.time()	#updates the timer
+						if '{0}' in f_command.group(2):
+							self.send_action("#httyd", format.color(f_command.group(2).format(event.source), format.GREEN))
+						else:
+							self.send_action("#httyd", format.color(f_command.group(2), format.GREEN))
+			f.close()
+	
 	def on_private_message(self, event):
 		# parse the message
 		message = event.message.split()
