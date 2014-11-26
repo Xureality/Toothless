@@ -6,6 +6,7 @@ __version__ = '0.2.1c "Gronckle"' # increment this every pull/update
 
 const_regex = r"Toothless\$\s+(.*)\s+->\s+(.*)\s*"
 const_deregex = r"Toothless\#\s+(.*)"
+const_eatregex = r"(T|t)oothless\!\s(.*)"
 const_treply=0.00
 const_tcommand=0.00
 err_msg = "tilts his head in confusion towards {0}"
@@ -45,7 +46,39 @@ class ToothlessBot(bot.SimpleBot):
 		global const_regex
 		global const_deregex
 		global err_msg
-
+		# EATING IS MORE IMPORTANT SO IT GOES ON TOP
+		ms = re.match(const_eatregex, event.message)
+		com = ms.group(2).split(' ', 1)				#falling back to the old way
+		cmd = com[0].upper()
+		try:
+			if ms.group(0):
+				if cmd == "EAT":
+					with open('stomach.txt', "a") as f:
+						f.write(("%s\n" % (com[1])))
+						print "i just ate " + com[1]
+						msg = "gulps down " + com[1]
+						self.send_action("#httyd", format.color(msg.format(event.source), format.GREEN))
+				elif cmd == "STOMACH":
+					f = open("stomach.txt","r")
+					lines = f.readlines()
+					f.close()
+					message = ", ".join(''.join(s).rstrip('\n') for s in lines)
+					msg = "' stomach contains " + message
+					self.send_action("#httyd", format.color(msg.format(event.source), format.GREEN))
+				elif cmd == "SPIT":
+					f = open("stomach.txt","r")
+					lines = f.readlines()
+					f.close()
+					f = open("stomach.txt","w")
+					for line in lines:
+						if not re.search(com[1].upper(), line.upper()):
+							f.write(line)
+					msg = "spits out " + com[1]
+					self.send_action("#httyd", format.color(msg.format(event.source), format.GREEN))
+					f.close()
+		except AttributeError:
+			# print "no match"
+			pass
 		# REMOVE COMMAND
 		m = re.match(const_deregex, event.message)
 		try:	# first rule of good program structure - don't follow the rules
@@ -179,6 +212,6 @@ class ToothlessBot(bot.SimpleBot):
 if __name__ == "__main__":
     echo = ToothlessBot("Toothless")
     echo.user = "Toothless"
-    echo.real_name = "ToothlessBot, by Tomako"
+    echo.real_name = "ToothlessBot, by Tomako, with help From Xureality"
     echo.connect("irc.editingarchive.com", port=6697, use_ssl=True)
     echo.start()
