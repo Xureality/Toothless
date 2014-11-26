@@ -48,10 +48,11 @@ class ToothlessBot(bot.SimpleBot):
 		global err_msg
 		global const_eatregex
 		# EATING IS MORE IMPORTANT SO IT GOES ON TOP
-		ms = re.match(const_eatregex, event.message)
-		com = ms.group(2).split(' ', 1)				#falling back to the old way
-		cmd = com[0].upper()
+		
 		try:
+			ms = re.match(const_eatregex, event.message)
+			com = ms.group(2).split(' ', 1)				#falling back to the old way
+			cmd = com[0].upper()
 			if ms.group(0):
 				if cmd == "EAT":
 					with open('stomach.txt', "a") as f:
@@ -64,7 +65,7 @@ class ToothlessBot(bot.SimpleBot):
 					lines = f.readlines()
 					f.close()
 					message = ", ".join(''.join(s).rstrip('\n') for s in lines)
-					msg = "' stomach contains " + message
+					msg = "stomach contains " + message
 					self.send_action("#httyd", format.color(msg.format(event.source), format.GREEN))
 				elif cmd == "SPIT":
 					f = open("stomach.txt","r")
@@ -80,6 +81,7 @@ class ToothlessBot(bot.SimpleBot):
 		except AttributeError:
 			# print "no match"
 			pass
+			
 		# REMOVE COMMAND
 		m = re.match(const_deregex, event.message)
 		try:	# first rule of good program structure - don't follow the rules
