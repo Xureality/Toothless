@@ -2,15 +2,13 @@
 from ircutils import bot, format
 import random, re, time
 
+__version__ = '0.2.1c "Gronckle"' # increment this every pull/update
+
 const_regex = r"Toothless\$\s+(.*)\s+->\s+(.*)\s*"
-const_deregex = r"Toothless\!\s+(.*)"
+const_deregex = r"Toothless\#\s+(.*)"
 const_treply=0.00
 const_tcommand=0.00
-
-def SaveCommand(left, right):
-	print("saving command...")
-	with open('commands.txt', "a").read() as commandlist:
-		commandlist.write(("\nToothless$ %s -> %s\n" % (left, right)))
+err_msg = "tilts his head in confusion towards {0}"
 
 class ToothlessBot(bot.SimpleBot):
 	IGNORE_EVENTS = set(('CONN_CONNECT', 'CTCP_VERSION', 'KICK',
@@ -44,25 +42,70 @@ class ToothlessBot(bot.SimpleBot):
 	def on_channel_message(self, event):
 		global const_treply
 		global const_tcommand
-		global const_regex			#just in case
-		err_msg = "tilts his head in confusion towards {0}"
+		global const_regex
+		global const_deregex
+		global err_msg
 
+		# REMOVE COMMAND
+		m = re.match(const_deregex, event.message)
+		try:	# first rule of good program structure - don't follow the rules
+			if m.group(0):
+				if len(event.message) <= 100:
+					if event.source in open('whitelist.txt').read():
+						# print "match"
+						f = open("commands.txt","r")
+						lines = f.readlines()
+						f.close()
+						f = open("commands.txt","w")
+						for line in lines:
+							if not re.search(m.group(1)+r'\s+->', line):
+								f.write(line)
+						self.send_action("#httyd", format.color("forgot one of his tricks!", format.GREEN))
+						f.close()
+					else:
+						self.send_action("#httyd", format.color("wont follow {0}'s instructions".format(event.source), format.GREEN))
+				else:
+					self.send_action("#httyd", format.color(err_msg.format(event.source), format.GREEN))
+		except AttributeError:
+			# print "no match"
+			pass
+
+		# CHECK IF COMMAND EXISTS
 		msg_split = event.message.split()
 		if msg_split[0] == 'Toothless$':
-			print "missing arguments!"
+			pass
+			# print "missing arguments!"
 		elif time.time() >= const_treply + 10:	#checks the time
+
+			''' # WIP
+			f = open('commands.txt')
+			lines = f.readlines()
+			open('cmd_cache.txt', "w").close() # flush content
+			with open('cmd_cache.txt', "w") as appendcmd:
+				for line in lines:
+					curr_fcmd = re.match(const_regex, line)
+					if curr_fcmd.group(1).upper() in event.message.upper():
+						appendcmd.write("%s\n" % curr_fcmd.group(1))
+			appendcmd.close()
+
+			with open('cmd_cache.txt') as cache:
+				for c_line in cache:
+
+			'''
+
+
 			with open('commands.txt') as f:
 				for line in f:
 					f_command = re.match(const_regex, line)
-					if f_command.group(1).upper() in event.message.upper():				#forces everything to ALL CAPS because reasons
-						print "found the following from your command: %s!" % f_command.group(2)
+					if f_command.group(1).upper() in event.message.upper():	# for non-case-sensitivity
 						const_treply = time.time()	#updates the timer
 						if '{0}' in f_command.group(2):
 							self.send_action("#httyd", format.color(f_command.group(2).format(event.source), format.GREEN))
 						else:
 							self.send_action("#httyd", format.color(f_command.group(2), format.GREEN))
 			f.close()
-
+			
+		# ADD COMMAND
 		m = re.match(const_regex, event.message)
 		try:
 			if m.group(0):
@@ -79,29 +122,8 @@ class ToothlessBot(bot.SimpleBot):
 				else:
 					self.send_action("#httyd", format.color(err_msg.format(event.source), format.GREEN))
 		except AttributeError:
-			print "no match"
-		
-		m = re.match(const_deregex, event.message)
-		try:
-			if m.group(0):
-				if len(event.message) <= 100:
-					if event.source in open('whitelist.txt').read():
-						print "match"
-						f = open("commands.txt","r")
-						lines = f.readlines()
-						f.close()
-						f = open("commands.txt","w")
-						for line in lines:
-							if not re.search(m.group(1)+r'\s+->', line):
-								f.write(line)
-						self.send_action("#httyd", format.color("has been trained by {0}!".format(event.source), format.GREEN))
-						f.close()
-					else:
-						self.send_action("#httyd", format.color("doesn't want to be trained by {0}".format(event.source), format.GREEN))
-				else:
-					self.send_action("#httyd", format.color(err_msg.format(event.source), format.GREEN))
-		except AttributeError:
-			print "no match"
+			# print "no match" # debug
+			pass
 
 	def on_ctcp_action(self, event):
 		global const_treply
@@ -130,9 +152,10 @@ class ToothlessBot(bot.SimpleBot):
 			message = format.color(format.bold("enters the arena!"), format.GREEN)
 			self.send_action(params[0], message)
 		elif command == 'TERMINATE' and event.source in open('admins.txt').read():
-			self.disconnect("I was promised a bag of fish")
-		elif command == 'IDENTIFY' and event.source in open('admins.txt').read():
-			self.send_message("NickServ", "IDENTIFY XXX")
+			self.disconnect("forced to save Hiccup from another gliding accident... again")
+		elif command == 'IDENTIFY' and params and event.source in open('admins.txt').read():
+			passwd = ''.join(params)
+			self.send_message("NickServ", "IDENTIFY %s" % passwd)
 		elif command == 'IGNORE_ME':
 			with open('exclude_users.txt', "a") as appendnick:
 				appendnick.write("\n%s" % event.source)
@@ -140,6 +163,17 @@ class ToothlessBot(bot.SimpleBot):
 			with open('whitelist.txt', "a") as appendnick:
 				appendnick.write("\n%s" % params[0])
 				self.send_action(event.source, "has added %s to the whitelist!" % params[0])
+				appendnick.close()
+		elif command == 'LIST_COMMANDS':
+			f = open('commands.txt', "r")
+			lines = f.readlines()
+			f.close()
+			for line in lines:
+				m = re.match(const_regex, line)
+				message = "%s -> %s" % (m.group(1), m.group(2))
+				self.send_message(event.source, message)
+		elif command == 'PURGE_COMMANDS_CONFIRM' and event.source in open('admins.txt').read():
+			open('commands.txt', "w").close()
 
 
 if __name__ == "__main__":
