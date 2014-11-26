@@ -2,7 +2,7 @@
 from ircutils import bot, format
 import random, re, time
 
-__version__ = '0.2.1c "Gronckle"' # increment this every pull/update
+__version__ = '0.2.2a "Gronckle"' # increment this every pull/update
 
 const_regex = r"Toothless\$\s+(.*)\s+->\s+(.*)\s*"
 const_deregex = r"Toothless\#\s+(.*)"
@@ -46,6 +46,7 @@ class ToothlessBot(bot.SimpleBot):
 		global const_regex
 		global const_deregex
 		global err_msg
+		global const_eatregex
 		# EATING IS MORE IMPORTANT SO IT GOES ON TOP
 		ms = re.match(const_eatregex, event.message)
 		com = ms.group(2).split(' ', 1)				#falling back to the old way
