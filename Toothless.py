@@ -11,6 +11,7 @@ const_attregex = r"[T|t]oothless\s+attack\s+(.*[^-~`!@#$%^&*()_=+\[\]{}\\|;:\'\"
 const_treply=0.00
 const_tcommand=0.00
 err_msg = "tilts his head in confusion towards {0}"
+err_msg_eat= "cocks his head in confusion at {0}'s command"
 
 class ToothlessBot(bot.SimpleBot):
 	IGNORE_EVENTS = set(('CONN_CONNECT', 'CTCP_VERSION', 'KICK',
@@ -49,20 +50,24 @@ class ToothlessBot(bot.SimpleBot):
 		global err_msg
 		global const_eatregex
 		global const_attregex
+		global err_msg_eat
 
 		# EATING IS MORE IMPORTANT SO IT GOES ON TOP
 		try:
 			ms = re.match(const_eatregex, event.message)
 			com = ms.group(1).split(' ', 1)				#falling back to the old way
 			cmd = com[0].upper()
-			if ms.group(0) and time.time() >= const_treply + 45:
+			if ms.group(0) and time.time() >= const_treply + 10:
 				if cmd == "EAT":
-					with open('stomach.txt', "a") as f:
-						f.write(("\n%s" % (com[1])))
-						print "i just ate " + com[1]
-						msg = "gulps down " + com[1]
-						const_tcommand = time.time()
-						self.send_action("#httyd", format.color(msg.format(event.source), format.GREEN))
+					if com[1].upper() in open('cant_eat.txt').read().upper():
+						self.send_action("#httyd", format.color(err_msg_eat.format(event.source), format.GREEN))
+					else:
+						with open('stomach.txt', "a") as f:
+							f.write(("\n%s" % (com[1])))
+							print "i just ate " + com[1]
+							msg = "gulps down " + com[1]
+							const_tcommand = time.time()
+							self.send_action("#httyd", format.color(msg.format(event.source), format.GREEN))
 				elif cmd == "STOMACH":
 					f = open("stomach.txt","r")
 					lines = f.readlines()
@@ -83,6 +88,10 @@ class ToothlessBot(bot.SimpleBot):
 					const_tcommand = time.time()
 					self.send_action("#httyd", format.color(msg.format(event.source), format.GREEN))
 					f.close()
+				elif cmd == 'SPITALL':
+					open("stomach.txt", "w").close()
+					self.send_action("#httyd", format.color("emptied his stomach", format.GREEN))
+
 		except AttributeError:
 			# print "no match"
 			pass
