@@ -2,11 +2,12 @@
 from ircutils import bot, format
 import random, re, time
 
-__version__ = '0.2.2a "Gronckle"' # increment this every pull/update
+__version__ = '0.2.3b "Gronckle"' # increment this every pull/update
 
 const_regex = r"Toothless\$\s+(.*)\s+->\s+(.*)\s*"
 const_deregex = r"Toothless\#\s+(.*)"
-const_eatregex = r"(T|t)oothless\!\s(.*)"
+const_eatregex = r"[T|t]oothless\!\s(.*)"
+const_attregex = r"[T|t]oothless\s+attack\s+(.*[^-~`!@#$%^&*()_=+\[\]{}\\|;:\'\",.<>/?]+)"
 const_treply=0.00
 const_tcommand=0.00
 err_msg = "tilts his head in confusion towards {0}"
@@ -47,18 +48,20 @@ class ToothlessBot(bot.SimpleBot):
 		global const_deregex
 		global err_msg
 		global const_eatregex
+		global const_attregex
+
 		# EATING IS MORE IMPORTANT SO IT GOES ON TOP
-		
 		try:
 			ms = re.match(const_eatregex, event.message)
-			com = ms.group(2).split(' ', 1)				#falling back to the old way
+			com = ms.group(1).split(' ', 1)				#falling back to the old way
 			cmd = com[0].upper()
-			if ms.group(0):
+			if ms.group(0) and time.time() >= const_treply + 45:
 				if cmd == "EAT":
 					with open('stomach.txt', "a") as f:
-						f.write(("%s\n" % (com[1])))
+						f.write(("\n%s" % (com[1])))
 						print "i just ate " + com[1]
 						msg = "gulps down " + com[1]
+						const_tcommand = time.time()
 						self.send_action("#httyd", format.color(msg.format(event.source), format.GREEN))
 				elif cmd == "STOMACH":
 					f = open("stomach.txt","r")
@@ -66,6 +69,7 @@ class ToothlessBot(bot.SimpleBot):
 					f.close()
 					message = ", ".join(''.join(s).rstrip('\n') for s in lines)
 					msg = "stomach contains " + message
+					const_tcommand = time.time()
 					self.send_action("#httyd", format.color(msg.format(event.source), format.GREEN))
 				elif cmd == "SPIT":
 					f = open("stomach.txt","r")
@@ -76,10 +80,25 @@ class ToothlessBot(bot.SimpleBot):
 						if not re.search(com[1].upper(), line.upper()):
 							f.write(line)
 					msg = "spits out " + com[1]
+					const_tcommand = time.time()
 					self.send_action("#httyd", format.color(msg.format(event.source), format.GREEN))
 					f.close()
 		except AttributeError:
 			# print "no match"
+			pass
+
+
+		# ATTACKING NICKS
+		try:
+			attack = re.match(const_attregex, event.message)
+			if attack.group(1):
+				print "attack command works! Attacking %s" % attack.group(1)
+				lines = open('attack_moves.txt').read().splitlines()
+				line = random.choice(lines)
+				                       # '%s' possible in file lines?
+				message = format.color(line + " %s" % attack.group(1), format.GREEN)
+				self.send_action("#httyd", message)
+		except AttributeError:
 			pass
 			
 		# REMOVE COMMAND
@@ -149,7 +168,7 @@ class ToothlessBot(bot.SimpleBot):
 					if event.source in open('whitelist.txt').read() and time.time() >= const_treply + 45:	#checks the time
 						print "match"
 						with open('commands.txt', "a") as f:
-							f.write(("Toothless$ %s -> %s\n" % (m.group(1), m.group(2))))
+							f.write(("\nToothless$ %s -> %s" % (m.group(1), m.group(2))))
 							print "command added!"
 							const_tcommand = time.time()	#updates the timer
 							self.send_action("#httyd", format.color("has been trained by {0}!".format(event.source), format.GREEN))
