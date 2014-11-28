@@ -1,9 +1,13 @@
-from ircutils import bot, format
+import json
 import random
 import re
 import time
 
-__version__ = '0.2.3b "Gronckle"'  # increment this every pull/update
+from ircutils import bot, format
+
+from toothless.models import Config, State
+from toothless.util import humanise_list, normalise
+
 
 const_regex = r"Toothless\$\s+(.*)\s+->\s+(.*)\s*"
 const_deregex = r"Toothless\#\s+(.*)"
@@ -15,7 +19,7 @@ err_msg = "tilts his head in confusion towards {0}"
 err_msg_eat = "cocks his head in confusion at {0}'s command"
 
 
-class ToothlessBot(bot.SimpleBot):
+class Bot(bot.SimpleBot):
     IGNORE_EVENTS = set(('CONN_CONNECT', 'CTCP_VERSION', 'KICK',
                          'MODE', 'NICK', 'PART', 'PING', 'PRIVMSG', 'QUIT',
                          'RPL_BOUNCE', 'RPL_CREATED', 'RPL_ENDOFMOTD',
@@ -26,15 +30,49 @@ class ToothlessBot(bot.SimpleBot):
                          'RPL_STATSCONN', 'RPL_TOPIC', 'RPL_TOPICWHOTIME',
                          'RPL_YOURHOST', 'RPL_YOURID', 'RPL_WELCOME', 'TOPIC'))
 
-    def on_join(self, event):
-        if event.source in open('exclude_users.txt').read():
-            return
+    def __init__(self, config_file, state_file):
+        self.config_file = config_file
+        self.state_file = state_file
+        self.load_config()
+        self.load_state()
 
-        elif event.source != self.nickname:
-            lines = open('welcomemsgs.txt').read().splitlines()
-            cline = random.choice(lines)
-            message = format.color(cline.format(event.source), format.GREEN)
-            self.send_action("#httyd", message)
+        super(Bot, self).__init__(self.config.connection.nick)
+        if self.config.connection.user_name:
+            self.user = self.config.connection.user_name
+        if self.config.connection.real_name:
+            self.real_name = self.config.connection.real_name
+        self.connect(
+            self.config.connection.server.address,
+            port=self.config.connection.server.port,
+            use_ssl=self.config.connection.server.use_ssl
+        )
+
+    def load_config(self):
+        self.config_file.seek(0)
+        self.config = Config(json.load(self.config_file))
+
+    def load_state(self):
+        self.state_file.seek(0)
+        self.state = State(json.load(self.state_file))
+
+    def save_state(self):
+        self.state_file.truncate(0)
+        json.dump(self.state.to_json(), self.state_file, indent=4,
+                  separators=(',', ': '), sort_keys=True)
+
+    def on_welcome(self, event):
+        if self.config.connection.password:
+            self.identify(self.config.connection.password)
+        self.join(self.config.connection.channel)
+
+    def on_join(self, event):
+        if event.source == self.nickname:
+            message = format.color(format.bold("enters the arena!"), format.GREEN)
+            self.send_action(self.config.connection.channel, message)
+        elif event.source not in self.state.ignored_nicks:
+            cline = random.choice(self.config.messages.greetings)
+            message = format.color(cline.format(nick=event.source), format.GREEN)
+            self.send_action(self.config.connection.channel, message)
 
     def on_any(self, event):
         if event.command in self.IGNORE_EVENTS:
@@ -60,39 +98,41 @@ class ToothlessBot(bot.SimpleBot):
             com = ms.group(1).split(' ', 1)  # falling back to the old way
             cmd = com[0].upper()
             if ms.group(0) and time.time() >= const_treply + 10:
-                if cmd == "EAT":
-                    if com[1].upper() in open('cant_eat.txt').read().upper():
-                        self.send_action("#httyd", format.color(err_msg_eat.format(event.source), format.GREEN))
-                    else:
-                        with open('stomach.txt', "a") as f:
-                            f.write(("\n%s" % (com[1])))
-                            print "i just ate " + com[1]
-                            msg = "gulps down " + com[1]
-                            const_tcommand = time.time()
-                            self.send_action("#httyd", format.color(msg.format(event.source), format.GREEN))
-                elif cmd == "STOMACH":
-                    f = open("stomach.txt", "r")
-                    lines = f.readlines()
-                    f.close()
-                    message = ", ".join(''.join(s).rstrip('\n') for s in lines)
-                    msg = "stomach contains " + message
+                if cmd == "STOMACH":
+                    # TODO: Use a third-party humanisation library.
+                    stomach = self.state.stomach.values()
+                    stomach.sort()
+                    msg = 'stomach contains ' + humanise_list(stomach)
                     const_tcommand = time.time()
-                    self.send_action("#httyd", format.color(msg.format(event.source), format.GREEN))
-                elif cmd == "SPIT":
-                    f = open("stomach.txt", "r")
-                    lines = f.readlines()
-                    f.close()
-                    f = open("stomach.txt", "w")
-                    for line in lines:
-                        if not re.search(com[1].upper(), line.upper()):
-                            f.write(line)
-                    msg = "spits out " + com[1]
-                    const_tcommand = time.time()
-                    self.send_action("#httyd", format.color(msg.format(event.source), format.GREEN))
-                    f.close()
+                    self.send_action(self.config.connection.channel, format.color(msg.format(event.source), format.GREEN))
                 elif cmd == 'SPITALL':
-                    open("stomach.txt", "w").close()
-                    self.send_action("#httyd", format.color("emptied his stomach", format.GREEN))
+                    # TODO: Consider responding differently if stomach was already empty.
+                    self.state.stomach.clear()
+                    self.save_state()
+                    self.send_action(self.config.connection.channel, format.color("emptied his stomach", format.GREEN))
+                else:
+                    victim = com[1].strip()
+                    norm_victim = normalise(victim)
+                    if cmd == "EAT":
+                        if norm_victim in self.config.inedible_victims:
+                            self.send_action(self.config.connection.channel, format.color(err_msg_eat.format(event.source), format.GREEN))
+                        else:
+                            # TODO: Consider responding differently if victim has already been consumed.
+                            self.state.stomach[norm_victim] = victim
+                            self.save_state()
+                            print('I just ate ' + victim)
+                            msg = 'gulps down ' + victim
+                            const_tcommand = time.time()
+                            self.send_action(self.config.connection.channel, format.color(msg.format(event.source), format.GREEN))
+                    elif cmd == "SPIT":
+                        # TODO: Consider responding differently if victim had not been consumed.
+                        if norm_victim in self.state.stomach:
+                            del self.state.stomach[norm_victim]
+                            self.save_state()
+                        msg = "spits out " + victim
+                        const_tcommand = time.time()
+                        self.send_action(self.config.connection.channel, format.color(msg.format(event.source), format.GREEN))
+                        f.close()
 
         except AttributeError:
             # print "no match"
@@ -103,10 +143,9 @@ class ToothlessBot(bot.SimpleBot):
             attack = re.match(const_attregex, event.message)
             if attack.group(1):
                 print "attack command works! Attacking %s" % attack.group(1)
-                lines = open('attack_moves.txt').read().splitlines()
-                line = random.choice(lines)  # '%s' possible in file lines?
+                line = random.choice(self.config.messages.attacks)
                 message = format.color(line + " %s" % attack.group(1), format.GREEN)
-                self.send_action("#httyd", message)
+                self.send_action(self.config.connection.channel, message)
         except AttributeError:
             pass
 
@@ -115,7 +154,7 @@ class ToothlessBot(bot.SimpleBot):
         try:  # first rule of good program structure - don't follow the rules
             if m.group(0):
                 if len(event.message) <= 100:
-                    if event.source in open('whitelist.txt').read():
+                    if event.source in self.state.privileged_nicks:
                         # print "match"
                         f = open("commands.txt", "r")
                         lines = f.readlines()
@@ -124,12 +163,12 @@ class ToothlessBot(bot.SimpleBot):
                         for line in lines:
                             if not re.search(m.group(1)+r'\s+->', line):
                                 f.write(line)
-                        self.send_action("#httyd", format.color("forgot one of his tricks!", format.GREEN))
+                        self.send_action(self.config.connection.channel, format.color("forgot one of his tricks!", format.GREEN))
                         f.close()
                     else:
-                        self.send_action("#httyd", format.color("wont follow {0}'s instructions".format(event.source), format.GREEN))
+                        self.send_action(self.config.connection.channel, format.color("wont follow {0}'s instructions".format(event.source), format.GREEN))
                 else:
-                    self.send_action("#httyd", format.color(err_msg.format(event.source), format.GREEN))
+                    self.send_action(self.config.connection.channel, format.color(err_msg.format(event.source), format.GREEN))
         except AttributeError:
             # print "no match"
             pass
@@ -163,9 +202,9 @@ class ToothlessBot(bot.SimpleBot):
                     if f_command.group(1).upper() in event.message.upper():  # for non-case-sensitivity
                         const_treply = time.time()  # updates the timer
                         if '{0}' in f_command.group(2):
-                            self.send_action("#httyd", format.color(f_command.group(2).format(event.source), format.GREEN))
+                            self.send_action(self.config.connection.channel, format.color(f_command.group(2).format(event.source), format.GREEN))
                         else:
-                            self.send_action("#httyd", format.color(f_command.group(2), format.GREEN))
+                            self.send_action(self.config.connection.channel, format.color(f_command.group(2), format.GREEN))
             f.close()
 
         # ADD COMMAND
@@ -173,17 +212,17 @@ class ToothlessBot(bot.SimpleBot):
         try:
             if m.group(0):
                 if len(event.message) <= 100:
-                    if event.source in open('whitelist.txt').read() and time.time() >= const_treply + 45:  # checks the time
+                    if event.source in self.state.privileged_nicks and time.time() >= const_treply + 45:  # checks the time
                         print "match"
                         with open('commands.txt', "a") as f:
                             f.write(("\nToothless$ %s -> %s" % (m.group(1), m.group(2))))
                             print "command added!"
                             const_tcommand = time.time()  # updates the timer
-                            self.send_action("#httyd", format.color("has been trained by {0}!".format(event.source), format.GREEN))
+                            self.send_action(self.config.connection.channel, format.color("has been trained by {0}!".format(event.source), format.GREEN))
                     else:
-                        self.send_action("#httyd", format.color("doesn't want to be trained by {0}".format(event.source), format.GREEN))
+                        self.send_action(self.config.connection.channel, format.color("doesn't want to be trained by {0}".format(event.source), format.GREEN))
                 else:
-                    self.send_action("#httyd", format.color(err_msg.format(event.source), format.GREEN))
+                    self.send_action(self.config.connection.channel, format.color(err_msg.format(event.source), format.GREEN))
         except AttributeError:
             # print "no match" # debug
             pass
@@ -198,9 +237,9 @@ class ToothlessBot(bot.SimpleBot):
                     if f_command.group(1).upper() in message.upper():  # forces everything to ALL CAPS because reasons
                         const_treply = time.time()  # updates the timer
                         if '{0}' in f_command.group(2):
-                            self.send_action("#httyd", format.color(f_command.group(2).format(event.source), format.GREEN))
+                            self.send_action(self.config.connection.channel, format.color(f_command.group(2).format(event.source), format.GREEN))
                         else:
-                            self.send_action("#httyd", format.color(f_command.group(2), format.GREEN))
+                            self.send_action(self.config.connection.channel, format.color(f_command.group(2), format.GREEN))
             f.close()
 
     def on_private_message(self, event):
@@ -210,24 +249,7 @@ class ToothlessBot(bot.SimpleBot):
         params = message[1:]          # any wors after that are params
 
         # determine what to do
-        if command == 'JOIN' and event.source in open('admins.txt').read():
-            self.join_channel(params[0])
-            message = format.color(format.bold("enters the arena!"), format.GREEN)
-            self.send_action(params[0], message)
-        elif command == 'TERMINATE' and event.source in open('admins.txt').read():
-            self.disconnect("forced to save Hiccup from another gliding accident... again")
-        elif command == 'IDENTIFY' and params and event.source in open('admins.txt').read():
-            passwd = ''.join(params)
-            self.send_message("NickServ", "IDENTIFY %s" % passwd)
-        elif command == 'IGNORE_ME':
-            with open('exclude_users.txt', "a") as appendnick:
-                appendnick.write("\n%s" % event.source)
-        elif command == 'APPEND_WHITELIST' and event.source in open('admins.txt').read():
-            with open('whitelist.txt', "a") as appendnick:
-                appendnick.write("\n%s" % params[0])
-                self.send_action(event.source, "has added %s to the whitelist!" % params[0])
-                appendnick.close()
-        elif command == 'LIST_COMMANDS':
+        if command == 'LIST_COMMANDS':
             f = open('commands.txt', "r")
             lines = f.readlines()
             f.close()
@@ -235,5 +257,17 @@ class ToothlessBot(bot.SimpleBot):
                 m = re.match(const_regex, line)
                 message = "%s -> %s" % (m.group(1), m.group(2))
                 self.send_message(event.source, message)
-        elif command == 'PURGE_COMMANDS_CONFIRM' and event.source in open('admins.txt').read():
-            open('commands.txt', "w").close()
+        elif command == 'IGNORE_ME':
+            self.state.ignored_nicks.add(event.source)
+            self.save_state()
+        elif event.source in self.config.admin_nicks:
+            if command == 'TERMINATE':
+                self.disconnect("Gotta go save Hiccup from another gliding accident again...")
+            elif command == 'APPEND_WHITELIST':
+                nick = params[0]
+                # TODO: Consider responding differently if nick was already whitelisted.
+                self.state.privileged_nicks.add(nick)
+                self.save_state()
+                self.send_action(event.source, "has added %s to the whitelist!" % nick)
+            elif command == 'PURGE_COMMANDS_CONFIRM':
+                open('commands.txt', "w").close()

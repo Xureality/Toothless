@@ -1,1 +1,2 @@
 ircutils==0.1.4
+jsonobject==0.6.1

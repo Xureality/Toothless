@@ -1,0 +1,36 @@
+{
+    "admin_nicks": [],
+    "connection": {
+        "channel": "#httyd",
+        "nick": "Toothless",
+        "password": "",
+        "real_name": "Toothless",
+        "server": {
+            "address": "irc.editingarchive.com",
+            "port": 6697,
+            "use_ssl": true
+        },
+        "user_name": "Toothless"
+    },
+    "inedible_victims": [],
+    "messages": {
+        "attacks": [
+            "noms {nick}"
+        ],
+        "greetings": [
+            "welcomingly nuzzles and licks {nick}",
+            "welcomingly nuzzles {nick}",
+            "welcomingly licks {nick}",
+            "welcomingly tail-slaps {nick}",
+            "playfully nuzzles and licks {nick}",
+            "playfully nuzzles {nick}",
+            "playfully licks {nick}",
+            "playfully tail-slaps {nick}",
+            "tosses a pebble at {nick}",
+            "joyfully waggles his tail at {nick}'s arrival",
+            "cheerfully waggles his tail at {nick}'s arrival",
+            "playfully waggles his tail at {nick}'s arrival",
+            "welcomes {nick} with a cheerful warble"
+        ]
+    }
+}
