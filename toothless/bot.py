@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from ircutils import bot, format
 import random
 import re
@@ -238,11 +237,3 @@ class ToothlessBot(bot.SimpleBot):
                 self.send_message(event.source, message)
         elif command == 'PURGE_COMMANDS_CONFIRM' and event.source in open('admins.txt').read():
             open('commands.txt', "w").close()
-
-
-if __name__ == "__main__":
-    echo = ToothlessBot("Toothless")
-    echo.user = "Toothless"
-    echo.real_name = "ToothlessBot, by Tomako, with help From Xureality"
-    echo.connect("irc.editingarchive.com", port=6697, use_ssl=True)
-    echo.start()
