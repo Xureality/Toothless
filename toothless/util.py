@@ -15,6 +15,12 @@ class AsciiStringProperty(AssertTypeProperty):
         return obj
 
 
+def dispatch(chain, *args, **kwargs):
+    for handler in chain:
+        if handler(*args, **kwargs):
+            break
+
+
 def humanise_list(items):
     if not items:
         return 'nothing'

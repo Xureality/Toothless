@@ -4,6 +4,9 @@ from jsonobject import (BooleanProperty, DictProperty, IntegerProperty,
 from toothless.util import AsciiStringProperty
 
 
+JsonObject.Meta.properties[str] = AsciiStringProperty
+
+
 class ConnectionServerConfig(JsonObject):
     address = AsciiStringProperty(required=True)
     port = IntegerProperty(required=True)
@@ -20,18 +23,19 @@ class ConnectionConfig(JsonObject):
 
 
 class MessagesConfig(JsonObject):
-    attacks = ListProperty(AsciiStringProperty, required=True)
-    greetings = ListProperty(AsciiStringProperty, required=True)
+    announce_arrival = AsciiStringProperty(required=True)
+    attacks = ListProperty(str, required=True)
+    greetings = ListProperty(str, required=True)
 
 
 class Config(JsonObject):
-    admin_nicks = SetProperty(AsciiStringProperty, required=True)
+    admin_nicks = SetProperty(str, required=True)
     connection = ObjectProperty(ConnectionConfig, required=True)
-    inedible_victims = SetProperty(AsciiStringProperty)
+    inedible_victims = SetProperty(str)
     messages = ObjectProperty(MessagesConfig, required=True)
 
 
 class State(JsonObject):
-    ignored_nicks = SetProperty(AsciiStringProperty)
-    privileged_nicks = SetProperty(AsciiStringProperty)
-    stomach = DictProperty(AsciiStringProperty)
+    ignored_nicks = SetProperty(str)
+    privileged_nicks = SetProperty(str)
+    stomach = DictProperty(str)
