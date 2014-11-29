@@ -24,8 +24,15 @@ class ConnectionConfig(JsonObject):
 
 class MessagesConfig(JsonObject):
     announce_arrival = AsciiStringProperty(required=True)
+    append_whitelist_existing = AsciiStringProperty(required=True)
+    append_whitelist_new = AsciiStringProperty(required=True)
     attacks = ListProperty(str, required=True)
+    disconnect = AsciiStringProperty(required=True)
     greetings = ListProperty(str, required=True)
+    ignore_me = AsciiStringProperty(required=True)
+    ignore_me_superfluous = AsciiStringProperty(required=True)
+    purge_commands = AsciiStringProperty(required=True)
+    purge_commands_superfluous = AsciiStringProperty(required=True)
 
 
 class Config(JsonObject):

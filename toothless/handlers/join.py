@@ -4,8 +4,8 @@ from ircutils import format
 
 
 def greet_newcomer(bot, event):
-    if (event.source in bot.state.ignored_nicks) or \
-       (event.source == bot.nickname):
+    if not ((event.source not in bot.state.ignored_nicks) and
+            (event.source != bot.nickname)):
         return False
 
     message = random.choice(bot.config.messages.greetings).format(
@@ -17,7 +17,7 @@ def greet_newcomer(bot, event):
 
 
 def announce_arrival(bot, event):
-    if event.source != bot.nickname:
+    if not (event.source == bot.nickname):
         return False
 
     message = bot.config.messages.announce_arrival

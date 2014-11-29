@@ -15,9 +15,12 @@
     "inedible_victims": [],
     "messages": {
         "announce_arrival": "enters the arena!",
+        "append_whitelist_existing": "The rest were already on the whitelist!",
+        "append_whitelist_new": "has added {nicks} to the whitelist!",
         "attacks": [
             "noms {nick}"
         ],
+        "disconnect": "Gotta go save Hiccup from yet another gliding accident...",
         "greetings": [
             "welcomingly nuzzles and licks {nick}",
             "welcomingly nuzzles {nick}",
@@ -32,6 +35,10 @@
             "cheerfully waggles his tail at {nick}'s arrival",
             "playfully waggles his tail at {nick}'s arrival",
             "welcomes {nick} with a cheerful warble"
-        ]
+        ],
+        "ignore_me": "will no longer acknowledge your entrances.",
+        "ignore_me_superfluous": "is already ignoring you.",
+        "purge_commands": "forgot all of his tricks!",
+        "purge_commands_superfluous": "hasn't learned any tricks to forget!"
     }
 }

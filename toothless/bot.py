@@ -1,11 +1,13 @@
 import json
+import os
+import re
 
 from ircutils.bot import SimpleBot
 
 from toothless.handlers import (channel_message_handlers, ctcp_action_handlers,
                                 join_handlers, private_message_handlers)
 from toothless.models import Config, State
-from toothless.util import dispatch
+from toothless.util import dispatch, normalise
 
 
 class Bot(SimpleBot):
@@ -26,18 +28,32 @@ class Bot(SimpleBot):
             use_ssl=self.config.connection.server.use_ssl
         )
 
+        self.channel_message_command_parser = re.compile(
+            '^\s*' + self.nickname + '!\s*(?P<command>\w+)\s*(?P<args>.*)$',
+            re.IGNORECASE
+        )
+        self.private_message_command_parser = re.compile(
+            '^\s*(?P<command>\w+)\s*(?P<args>.*)$',
+            re.IGNORECASE
+        )
+
     def load_config(self):
         self.config_file.seek(0)
         self.config = Config(json.load(self.config_file))
 
     def load_state(self):
-        self.state_file.seek(0)
-        self.state = State(json.load(self.state_file))
+        try:
+            self.state_file.seek(0)
+            self.state = State(json.load(self.state_file))
+        except:
+            self.state = State()
 
     def save_state(self):
         self.state_file.truncate(0)
         json.dump(self.state.to_json(), self.state_file, indent=4,
                   separators=(',', ': '), sort_keys=True)
+        self.state_file.flush()
+        os.fsync(self.state_file.fileno())
 
     def on_welcome(self, event):
         if self.config.connection.password:
@@ -49,7 +65,10 @@ class Bot(SimpleBot):
                                                  event.target, event.params))
 
     def on_channel_message(self, event):
-        dispatch(channel_message_handlers, self, event)
+        match = self.channel_message_command_parser.match(event.message)
+        dispatch(channel_message_handlers, self, event,
+                 normalise(match.group('command')) if match else None,
+                 match.group('args').strip() if match else None)
 
     def on_ctcp_action(self, event):
         dispatch(ctcp_action_handlers, self, event)
@@ -58,4 +77,7 @@ class Bot(SimpleBot):
         dispatch(join_handlers, self, event)
 
     def on_private_message(self, event):
-        dispatch(private_message_handlers, self, event)
+        match = self.private_message_command_parser.match(event.message)
+        dispatch(private_message_handlers, self, event,
+                 normalise(match.group('command')) if match else None,
+                 match.group('args').strip() if match else None)

@@ -18,14 +18,15 @@ class AsciiStringProperty(AssertTypeProperty):
 def dispatch(chain, *args, **kwargs):
     for handler in chain:
         if handler(*args, **kwargs):
-            break
+            return True
+    return False
 
 
-def humanise_list(items):
+def humanise_list(items, zero_items='nothing', one_item_prefix='just '):
     if not items:
-        return 'nothing'
+        return zero_items
     elif len(items) == 1:
-        return 'just ' + items[0]
+        return one_item_prefix + items[0]
     elif len(items) == 2:
         return ' and '.join(items)
     else:
