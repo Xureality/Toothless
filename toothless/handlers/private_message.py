@@ -4,7 +4,14 @@ from toothless.util import dispatch, humanise_list
 
 @command_handler('list_commands')
 def list_commands(bot, event, command, args):
-    pass
+    idents = bot.state.commands.keys()
+    idents.sort()
+    for ident in idents:
+        command = bot.state.commands[ident]
+        message = bot.config.messages.print_command.format(
+            trigger=command.trigger, response=command.response
+        )
+        bot.send_message(event.source, message)
 
 
 @command_handler('ignore_me')
@@ -45,6 +52,7 @@ def append_whitelist(bot, event, command, args):
 def purge_commands(bot, event, command, args):
     if bot.state.commands:
         bot.state.commands.clear()
+        bot.commands_cache.clear()
         message = bot.config.messages.purge_commands
         bot.send_action(event.source, message)
         bot.save_state()

@@ -30,9 +30,14 @@ class MessagesConfig(JsonObject):
     disconnect = AsciiStringProperty(required=True)
     eat = AsciiStringProperty(required=True)
     eat_inedible = AsciiStringProperty(required=True)
+    forget = AsciiStringProperty(required=True)
+    forget_superfluous = AsciiStringProperty(required=True)
     greetings = ListProperty(str, required=True)
     ignore_me = AsciiStringProperty(required=True)
     ignore_me_superfluous = AsciiStringProperty(required=True)
+    learn = AsciiStringProperty(required=True)
+    learn_error = AsciiStringProperty(required=True)
+    print_command = AsciiStringProperty(required=True)
     purge_commands = AsciiStringProperty(required=True)
     purge_commands_superfluous = AsciiStringProperty(required=True)
     spit = AsciiStringProperty(required=True)
@@ -49,7 +54,13 @@ class Config(JsonObject):
     messages = ObjectProperty(MessagesConfig, required=True)
 
 
+class Command(JsonObject):
+    trigger = AsciiStringProperty(required=True)
+    response = AsciiStringProperty(required=True)
+
+
 class State(JsonObject):
+    commands = DictProperty(Command)
     ignored_nicks = SetProperty(str)
     privileged_nicks = SetProperty(str)
     stomach = DictProperty(str)

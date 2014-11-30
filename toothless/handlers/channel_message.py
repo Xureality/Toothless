@@ -1,9 +1,16 @@
 import random
+import re
 
+from heapq import heappush
 from ircutils import format
+from string import Template
 
-from toothless.decorators import command_handler
-from toothless.util import humanise_list, normalise
+from toothless.decorators import command_handler, privileged_handler
+from toothless.models import Command
+from toothless.util import dispatch, humanise_list, normalise
+
+
+LEARN_COMMAND = re.compile('(?P<trigger>.+) -> (?P<response>.+)')
 
 
 @command_handler('attack', has_args=True)
@@ -77,10 +84,98 @@ def vomit(bot, event, command, args):
     return True
 
 
+@command_handler('learn', has_args=True)
+def learn(bot, event, command, args):
+    trigger = args
+    ident = normalise(trigger)
+
+    try:
+        # Parse instructions.
+        match = LEARN_COMMAND.match(args)
+        assert(match)
+
+        # Ensure trigger is reasonably unique.
+        trigger = match.group('trigger')
+        response = match.group('response')
+        ident = normalise(trigger)
+        assert(ident not in bot.state.commands)
+
+        # Ensure both trigger and response are valid.
+        regex = re.compile(trigger)
+        template = Template(response)
+
+        # TODO: Ensure all exceptions henceforth are fatal.
+        bot.state.commands[ident] = Command(trigger=trigger, response=response)
+        bot.commands_cache[ident] = (regex, template)
+
+        message = bot.config.messages.learn.format(nick=event.source)
+        formatted_message = format.color(message, format.GREEN)
+        bot.send_action(bot.config.connection.channel, formatted_message)
+
+        bot.save_state()
+    except (AssertionError, re.error):
+        message = bot.config.messages.learn_error.format(nick=event.source)
+        formatted_message = format.color(message, format.GREEN)
+        bot.send_action(bot.config.connection.channel, formatted_message)
+    return True
+
+
+@command_handler('forget', has_args=True)
+def forget(bot, event, command, args):
+    trigger = args
+    ident = normalise(trigger)
+    command_exists = ((ident in bot.state.commands) and
+                      (trigger == bot.state.commands[ident].trigger))
+
+    if command_exists:
+        del bot.state.commands[ident]
+        del bot.commands_cache[ident]
+        message = bot.config.messages.forget
+        formatted_message = format.color(message, format.GREEN)
+        bot.send_action(bot.config.connection.channel, formatted_message)
+        bot.save_state()
+    else:
+        message = bot.config.messages.forget_superfluous
+        formatted_message = format.color(message, format.GREEN)
+        bot.send_action(bot.config.connection.channel, formatted_message)
+    return True
+
+
+@command_handler(None)
+def respond(bot, event, command, args):
+    matches = []
+    for (ident, (regex, template)) in bot.commands_cache.iteritems():
+        match = regex.search(event.message)
+        if match:
+            params = match.groupdict()
+            params['nick'] = event.source
+            heappush(
+                matches, (match.start(0), template.safe_substitute(params))
+            )
+
+    if not matches:
+        return False
+
+    message = matches[0][1]
+    formatted_message = format.color(message, format.GREEN)
+    bot.send_action(bot.config.connection.channel, formatted_message)
+    return True
+
+
+privileged_channel_message_handlers = [
+    learn,
+    forget,
+]
+
+
 channel_message_handlers = [
     attack,
     eat,
     stomach,
     spit,
     vomit,
+    privileged_handler(
+        lambda *args: dispatch(privileged_channel_message_handlers, *args)
+    ),
+    respond,
 ]

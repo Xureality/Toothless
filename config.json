@@ -28,6 +28,8 @@
         "disconnect": "Gotta go save Hiccup from yet another gliding accident...",
         "eat": "gulps down {victim}!",
         "eat_inedible": "doesn't feel like eating {victim}!",
+        "forget": "forgot one of his tricks!",
+        "forget_superfluous": "doesn't know that trick!",
         "greetings": [
             "welcomingly nuzzles and licks {nick}",
             "welcomingly nuzzles {nick}",
@@ -45,6 +47,9 @@
         ],
         "ignore_me": "will no longer acknowledge your entrances.",
         "ignore_me_superfluous": "is already ignoring you.",
+        "learn": "has been trained by {nick}!",
+        "learn_error": "tilts his head in confusion towards {nick}...",
+        "print_command": "{trigger} -> {response}",
         "purge_commands": "forgot all of his tricks!",
         "purge_commands_superfluous": "hasn't learned any tricks to forget!",
         "spit": "spits out {victim}!",

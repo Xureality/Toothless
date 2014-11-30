@@ -3,6 +3,7 @@ import os
 import re
 
 from ircutils.bot import SimpleBot
+from string import Template
 
 from toothless.handlers import (channel_message_handlers, ctcp_action_handlers,
                                 join_handlers, private_message_handlers)
@@ -47,6 +48,10 @@ class Bot(SimpleBot):
             self.state = State(json.load(self.state_file))
         except:
             self.state = State()
+        self.commands_cache = {
+            ident: (re.compile(command.trigger), Template(command.response))
+            for (ident, command) in self.state.commands.iteritems()
+        }
 
     def save_state(self):
         self.state_file.truncate(0)
