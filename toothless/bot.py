@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import re
 
@@ -9,6 +10,9 @@ from toothless.handlers import (channel_message_handlers, ctcp_action_handlers,
                                 join_handlers, private_message_handlers)
 from toothless.models import Config, State
 from toothless.util import RateLimiter, dispatch, normalise
+
+
+logger = logging.getLogger(__name__)
 
 
 class Bot(SimpleBot):
@@ -70,8 +74,8 @@ class Bot(SimpleBot):
         self.join(self.config.connection.channel)
 
     def on_any(self, event):
-        print(u'{0} ({1} \u2192 {2}) {3}'.format(event.command, event.source,
-                                                 event.target, event.params))
+        logger.debug(u'Received %s (%s \u2192 %s): %s', event.command,
+                     event.source, event.target, event.params)
 
     def on_channel_message(self, event):
         if event.source != self.nickname:
