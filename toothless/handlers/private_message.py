@@ -36,7 +36,8 @@ def append_whitelist(bot, event, command, args):
         message += ' ' + bot.config.messages.append_whitelist_existing
     bot.send_action(event.source, message)
 
-    bot.save_state()
+    if new_nicks:
+        bot.save_state()
     return True
 
 

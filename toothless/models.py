@@ -28,11 +28,18 @@ class MessagesConfig(JsonObject):
     append_whitelist_new = AsciiStringProperty(required=True)
     attacks = ListProperty(str, required=True)
     disconnect = AsciiStringProperty(required=True)
+    eat = AsciiStringProperty(required=True)
+    eat_inedible = AsciiStringProperty(required=True)
     greetings = ListProperty(str, required=True)
     ignore_me = AsciiStringProperty(required=True)
     ignore_me_superfluous = AsciiStringProperty(required=True)
     purge_commands = AsciiStringProperty(required=True)
     purge_commands_superfluous = AsciiStringProperty(required=True)
+    spit = AsciiStringProperty(required=True)
+    spit_superfluous = AsciiStringProperty(required=True)
+    stomach = AsciiStringProperty(required=True)
+    vomit = AsciiStringProperty(required=True)
+    vomit_superfluous = AsciiStringProperty(required=True)
 
 
 class Config(JsonObject):

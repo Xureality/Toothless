@@ -15,17 +15,19 @@
     "inedible_victims": [],
     "messages": {
         "announce_arrival": "enters the arena!",
-        "append_whitelist_existing": "The rest were already on the whitelist!",
-        "append_whitelist_new": "has added {nicks} to the whitelist!",
+        "append_whitelist_existing": "The rest were already on the whitelist.",
+        "append_whitelist_new": "has added {nicks} to the whitelist.",
         "attacks": [
-            "shoots a plasma bolt at {nick}",
-            "hurls a pebble at {nick}",
-            "tackles {nick}",
-            "tail-whips {nick}",
-            "charges {nick}",
-            "unsheathes his teeth and bites {nick}"
+            "shoots a plasma bolt at {target}!",
+            "hurls a pebble at {target}!",
+            "tackles {target}!",
+            "tail-whips {target}!",
+            "charges {target}!",
+            "unsheathes his teeth and bites {target}!"
         ],
         "disconnect": "Gotta go save Hiccup from yet another gliding accident...",
+        "eat": "gulps down {victim}!",
+        "eat_inedible": "doesn't feel like eating {victim}!",
         "greetings": [
             "welcomingly nuzzles and licks {nick}",
             "welcomingly nuzzles {nick}",
@@ -44,6 +46,11 @@
         "ignore_me": "will no longer acknowledge your entrances.",
         "ignore_me_superfluous": "is already ignoring you.",
         "purge_commands": "forgot all of his tricks!",
-        "purge_commands_superfluous": "hasn't learned any tricks to forget!"
+        "purge_commands_superfluous": "hasn't learned any tricks to forget!",
+        "spit": "spits out {victim}!",
+        "spit_superfluous": "hasn't eaten {victim} yet!",
+        "stomach": "is digesting {victims}...",
+        "vomit": "empties his stomach!",
+        "vomit_superfluous": "hasn't eaten anything yet!"
     }
 }
