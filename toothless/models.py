@@ -1,5 +1,6 @@
-from jsonobject import (BooleanProperty, DictProperty, IntegerProperty,
-                        JsonObject, ListProperty, ObjectProperty, SetProperty)
+from jsonobject import (BooleanProperty, DictProperty, FloatProperty,
+                        IntegerProperty, JsonObject, ListProperty,
+                        ObjectProperty, SetProperty)
 
 from toothless.util import AsciiStringProperty
 
@@ -47,11 +48,17 @@ class MessagesConfig(JsonObject):
     vomit_superfluous = AsciiStringProperty(required=True)
 
 
+class RateLimiterArgs(JsonObject):
+    quota = IntegerProperty(required=True)
+    window = FloatProperty(required=True)
+
+
 class Config(JsonObject):
     admin_nicks = SetProperty(str, required=True)
     connection = ObjectProperty(ConnectionConfig, required=True)
     inedible_victims = SetProperty(str)
     messages = ObjectProperty(MessagesConfig, required=True)
+    throttle_command_responses = ObjectProperty(RateLimiterArgs, required=True)
 
 
 class Command(JsonObject):

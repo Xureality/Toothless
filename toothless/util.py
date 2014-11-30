@@ -1,6 +1,8 @@
 import re
 
+from collections import deque
 from jsonobject.base_properties import AssertTypeProperty
+from monotonic import monotonic
 
 
 NORMALISED_REPRESENTATION_STRIPPED_CHARS = re.compile('\W+')
@@ -13,6 +15,53 @@ class AsciiStringProperty(AssertTypeProperty):
         if isinstance(obj, unicode):
             obj = str(obj)
         return obj
+
+
+class RateLimiter:
+    def __init__(self, quota, window):
+        # preconditions
+        assert(quota > 0)
+        assert(window > 0)
+
+        # save params
+        self.quota = quota
+        self.window = window
+
+        # init misc
+        self.state = {}
+
+    def intend(self, ident):
+        # preconditions
+        assert(self.quota > 0)
+        assert(self.window > 0)
+
+        # init
+        now = monotonic()
+        if (ident not in self.state):
+            self.state[ident] = (deque(), 0)
+        (queue, failed_intents) = self.state[ident]
+
+        # flush expired intents
+        while (queue and ((now - queue[0]) > self.window)):
+            queue.popleft()
+
+        # work out what to do with current intent
+        if (len(queue) < self.quota):
+            queue.append(now)
+            failed_intents = 0
+        else:
+            failed_intents += 1
+
+        # postconditions
+        assert(len(queue) <= self.quota)
+
+        # save state
+        self.state[ident] = (queue, failed_intents)
+
+        # generate bean counters
+        quota_left = self.quota - len(queue) - failed_intents
+        window_left = self.window - (now - queue[0])
+        return (quota_left, window_left)
 
 
 def dispatch(chain, *args, **kwargs):

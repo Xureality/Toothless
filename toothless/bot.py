@@ -8,7 +8,7 @@ from string import Template
 from toothless.handlers import (channel_message_handlers, join_handlers,
                                 private_message_handlers)
 from toothless.models import Config, State
-from toothless.util import dispatch, normalise
+from toothless.util import RateLimiter, dispatch, normalise
 
 
 class Bot(SimpleBot):
@@ -41,6 +41,10 @@ class Bot(SimpleBot):
     def load_config(self):
         self.config_file.seek(0)
         self.config = Config(json.load(self.config_file))
+        self.command_responses_rate_limiter = RateLimiter(
+            self.config.throttle_command_responses.quota,
+            self.config.throttle_command_responses.window
+        )
 
     def load_state(self):
         try:

@@ -57,5 +57,9 @@
         "stomach": "is digesting {victims}...",
         "vomit": "empties his stomach!",
         "vomit_superfluous": "hasn't eaten anything yet!"
+    },
+    "throttle_command_responses": {
+        "quota": 1,
+        "window": 10.0
     }
 }

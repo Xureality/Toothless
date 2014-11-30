@@ -143,6 +143,10 @@ def forget(bot, event, command, args):
 
 @command_handler(None)
 def respond(bot, event, command, args):
+    # Enforce rate limiting on a per-nick basis.
+    if bot.command_responses_rate_limiter.intend(event.source)[0] < 0:
+        return False
+
     matches = []
     for (ident, (regex, template)) in bot.commands_cache.iteritems():
         match = regex.search(event.message)
