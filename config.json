@@ -1,12 +1,12 @@
 {
     "admin_nicks": [],
     "connection": {
-        "channel": "#httyd",
+        "channel": "#channel",
         "nick": "Toothless",
         "password": "",
         "real_name": "Toothless",
         "server": {
-            "address": "irc.editingarchive.com",
+            "address": "irc.host.com",
             "port": 6697,
             "use_ssl": true
         },

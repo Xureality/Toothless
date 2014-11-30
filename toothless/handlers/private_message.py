@@ -61,6 +61,12 @@ def purge_commands(bot, event, command, args):
         bot.send_action(event.source, message)
     return True
 
+@command_handler('reload_config')
+def reload_config(bot, event, command, args):
+    bot.load_config()
+    bot.load_state()
+    return True
+
 
 @command_handler('terminate')
 def terminate(bot, event, command, args):
@@ -71,6 +77,7 @@ def terminate(bot, event, command, args):
 admin_private_message_handlers = [
     append_whitelist,
     purge_commands,
+    reload_config,
     terminate,
 ]
 
