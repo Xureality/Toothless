@@ -5,8 +5,8 @@ import re
 from ircutils.bot import SimpleBot
 from string import Template
 
-from toothless.handlers import (channel_message_handlers, ctcp_action_handlers,
-                                join_handlers, private_message_handlers)
+from toothless.handlers import (channel_message_handlers, join_handlers,
+                                private_message_handlers)
 from toothless.models import Config, State
 from toothless.util import dispatch, normalise
 
@@ -74,9 +74,6 @@ class Bot(SimpleBot):
         dispatch(channel_message_handlers, self, event,
                  normalise(match.group('command')) if match else None,
                  match.group('args').strip() if match else None)
-
-    def on_ctcp_action(self, event):
-        dispatch(ctcp_action_handlers, self, event)
 
     def on_join(self, event):
         dispatch(join_handlers, self, event)
