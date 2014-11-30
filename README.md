@@ -1,36 +1,35 @@
 # Toothless
 
-Latest release is **v2.2a "Gronckle"**
+Toothless is an IRC bot. Toothless welcomes users, responds to trigger phrases, and eats stuff.
 
-Toothless is ~~a messy, horrendously and arse-written~~ ~~decently~~ somewhat decently written IRC-bot that can interacts with whitelisted nicks. Toothless welcomes users, responds to trigger phrases and eats stuff.
-
-Toothless is written in **Python 2.7.X** and based upon **[ircutils](https://github.com/kracekumar/ircutils)**.
+Toothless requires **Python 2.7** and uses **[ircutils](https://github.com/kracekumar/ircutils)**.
 
 ## Commands
-### PRIVMSG
-`/msg Toothless identify passwd`, identifies Toothless with NickServ
 
-`/msg Toothless join #channel`, tells Toothless to join #channel
+### Private
 
-`/msg Toothless list_commands`,  lists the currently saved trigger and response phrases found in `commands.txt`
+`/msg Toothless list_commands` lists all trigger&ndash;response pairs.
 
-`/msg Toothless terminate`, shuts down the bot if nick is found in `admins.txt`
+`/msg Toothless ignore_me` prevents Toothless from greeting your future channel joins.
 
-`/msg Toothless ignore_me`, excludes you from Toothless's welcome messages
+`/msg Toothless append_whitelist nick1 nick2 nick3` adds one or more nicks to the whitelist. Only admins can use this command.
 
-`/msg Toothless append_whitelist nick`, appends nick to `whitelist.txt` 
+`/msg Toothless purge_commands` removes all trigger&ndash;response pairs. Only admins can use this command.
+
+`/msg Toothless terminate` shuts down the bot. Only admins can use this command.
 
 ### Channel
-Following commands can only be used if nick is found `whitelist.txt` for anti-spam purposes
 
-`Toothless$ foobar -> flowerpot`, saves the response "flowerpot" to be said when a message contains "foobar"
+`Toothless! attack target` makes Toothless attack "target".
 
-`Toothless$ bad dragon! -> tackles {0}`, tackles nick when "bad dragon!" is found in message
+`Toothless! eat victim` makes Toothless eat "victim".
 
-`Toothless# foobar`, removes the response for the trigger "foobar"
+`Toothless! stomach` lists what Toothless has eaten.
 
-`Toothless! eat eel`, makes Toothless eat "eel"
+`Toothless! spit victim` makes Toothless regurgitate "victim".
 
-`Toothless! spit eel`, makes Toothless spit out "eel"
+`Toothless! vomit` makes Toothless regurgitate everything.
 
-`Toothless! stomach`, lists what Toothless has eaten
+`Toothless! learn trigger -> response` adds a trigger&ndash;response pair. Triggers are parsed as regular expressions. Responses are parsed as Python template strings; supplied substitution placeholders include the triggerer's nick (as `${nick}`) and any of the trigger's named groups. Only admins and whitelisted nicks can use this command.
+
+`Toothless! forget trigger` removes the corresponding trigger&ndash;response pair. Only admins and whitelisted nicks can use this command.
