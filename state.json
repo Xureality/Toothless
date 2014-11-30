@@ -1,0 +1,19 @@
+{
+    "commands": {
+        "ibchatsisskillb": {
+            "response": "lowers his head and sighs",
+            "trigger": "(?i)\\bchat\\s+is\\s+kill\\b"
+        },
+        "ibislikesdragob": {
+            "response": "growls at ${nick}",
+            "trigger": "(?i)\\bi\\s+like\\s+drago\\b"
+        },
+        "ibrightsbud": {
+            "response": "nods in agreement",
+            "trigger": "(?i)\\bright,\\s+bud\\?"
+        }
+    },
+    "ignored_nicks": [],
+    "privileged_nicks": [],
+    "stomach": {}
+}

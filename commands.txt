@@ -1,3 +1,0 @@
-Toothless$ right, bud? -> nods in agreement
-Toothless$ Chat is kill -> lowers his head and sighs
-Toothless$ i like Drago -> growls at {0}
