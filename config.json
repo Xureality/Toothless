@@ -18,7 +18,12 @@
         "append_whitelist_existing": "The rest were already on the whitelist!",
         "append_whitelist_new": "has added {nicks} to the whitelist!",
         "attacks": [
-            "noms {nick}"
+            "shoots a plasma bolt at {nick}",
+            "hurls a pebble at {nick}",
+            "tackles {nick}",
+            "tail-whips {nick}",
+            "charges {nick}",
+            "unsheathes his teeth and bites {nick}"
         ],
         "disconnect": "Gotta go save Hiccup from yet another gliding accident...",
         "greetings": [
