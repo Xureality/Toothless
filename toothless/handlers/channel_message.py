@@ -5,7 +5,8 @@ from heapq import heappush
 from ircutils import format
 from string import Template
 
-from toothless.decorators import command_handler, privileged_handler
+from toothless.decorators import (command_handler, message_handler,
+                                  privileged_handler)
 from toothless.models import Command
 from toothless.util import dispatch, humanise_list, normalise
 
@@ -141,8 +142,8 @@ def forget(bot, event, command, args):
     return True
 
 
-@command_handler(None)
-def respond(bot, event, command, args):
+@message_handler
+def respond(bot, event):
     # Enforce rate limiting on a per-nick basis.
     if bot.command_responses_rate_limiter.intend(event.source)[0] < 0:
         return False
