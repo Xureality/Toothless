@@ -18,7 +18,7 @@ Toothless requires **Python 2.7** and uses **[ircutils](https://github.com/krace
 
 `/msg Toothless terminate` shuts down the bot. Only admins can use this command.
 
-`/msg Toothless reload_config` reloads config.json and state.json while running. Only admins can use this command.
+`/msg Toothless reload_config` reloads config.json and state.json while running. Note that connection configuration changes will not take effect without a restart. Only admins can use this command.
 
 ### Channel
 
