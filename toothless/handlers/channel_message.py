@@ -2,7 +2,6 @@ import random
 import re
 
 from heapq import heappush
-from ircutils import format
 from string import Template
 
 from toothless.decorators import (command_handler, message_handler,
@@ -16,9 +15,8 @@ LEARN_COMMAND = re.compile('(?P<trigger>.+) -> (?P<response>.+)')
 
 @command_handler('attack', has_args=True)
 def attack(bot, event, command, args):
-    message = random.choice(bot.config.messages.attacks).format(target=args)
-    formatted_message = format.color(message, format.GREEN)
-    bot.send_action(bot.config.connection.channel, formatted_message)
+    bot.send_channel_action(random.choice(bot.config.messages.attacks),
+                            target=args)
     return True
 
 
@@ -29,14 +27,11 @@ def eat(bot, event, command, args):
 
     if normalised_victim not in bot.config.inedible_victims:
         bot.state.stomach[normalised_victim] = victim
-        message = bot.config.messages.eat.format(victim=victim)
-        formatted_message = format.color(message, format.GREEN)
-        bot.send_action(bot.config.connection.channel, formatted_message)
+        bot.send_channel_action(bot.config.messages.eat, victim=victim)
         bot.save_state()
     else:
-        message = bot.config.messages.eat_inedible.format(victim=victim)
-        formatted_message = format.color(message, format.GREEN)
-        bot.send_action(bot.config.connection.channel, formatted_message)
+        bot.send_channel_action(bot.config.messages.eat_inedible,
+                                victim=victim)
     return True
 
 
@@ -44,11 +39,8 @@ def eat(bot, event, command, args):
 def stomach(bot, event, command, args):
     stomach = bot.state.stomach.values()
     stomach.sort()
-    message = bot.config.messages.stomach.format(
-        victims=humanise_list(stomach)
-    )
-    formatted_message = format.color(message, format.GREEN)
-    bot.send_action(bot.config.connection.channel, formatted_message)
+    bot.send_channel_action(bot.config.messages.stomach,
+                            victims=humanise_list(stomach))
     return True
 
 
@@ -59,14 +51,11 @@ def spit(bot, event, command, args):
 
     if normalised_victim in bot.state.stomach:
         del bot.state.stomach[normalised_victim]
-        message = bot.config.messages.spit.format(victim=victim)
-        formatted_message = format.color(message, format.GREEN)
-        bot.send_action(bot.config.connection.channel, formatted_message)
+        bot.send_channel_action(bot.config.messages.spit, victim=victim)
         bot.save_state()
     else:
-        message = bot.config.messages.spit_superfluous.format(victim=victim)
-        formatted_message = format.color(message, format.GREEN)
-        bot.send_action(bot.config.connection.channel, formatted_message)
+        bot.send_channel_action(bot.config.messages.spit_superfluous,
+                                victim=victim)
     return True
 
 
@@ -74,14 +63,10 @@ def spit(bot, event, command, args):
 def vomit(bot, event, command, args):
     if bot.state.stomach:
         bot.state.stomach.clear()
-        message = bot.config.messages.vomit
-        formatted_message = format.color(message, format.GREEN)
-        bot.send_action(bot.config.connection.channel, formatted_message)
+        bot.send_channel_action(bot.config.messages.vomit)
         bot.save_state()
     else:
-        message = bot.config.messages.vomit_superfluous
-        formatted_message = format.color(message, format.GREEN)
-        bot.send_action(bot.config.connection.channel, formatted_message)
+        bot.send_channel_action(bot.config.messages.vomit_superfluous)
     return True
 
 
@@ -109,15 +94,12 @@ def learn(bot, event, command, args):
         bot.state.commands[ident] = Command(trigger=trigger, response=response)
         bot.commands_cache[ident] = (regex, template)
 
-        message = bot.config.messages.learn.format(nick=event.source)
-        formatted_message = format.color(message, format.GREEN)
-        bot.send_action(bot.config.connection.channel, formatted_message)
+        bot.send_channel_action(bot.config.messages.learn, nick=event.source)
 
         bot.save_state()
     except (AssertionError, re.error):
-        message = bot.config.messages.learn_error.format(nick=event.source)
-        formatted_message = format.color(message, format.GREEN)
-        bot.send_action(bot.config.connection.channel, formatted_message)
+        bot.send_channel_action(bot.config.messages.learn_error,
+                                nick=event.source)
     return True
 
 
@@ -131,14 +113,10 @@ def forget(bot, event, command, args):
     if command_exists:
         del bot.state.commands[ident]
         del bot.commands_cache[ident]
-        message = bot.config.messages.forget
-        formatted_message = format.color(message, format.GREEN)
-        bot.send_action(bot.config.connection.channel, formatted_message)
+        bot.send_channel_action(bot.config.messages.forget)
         bot.save_state()
     else:
-        message = bot.config.messages.forget_superfluous
-        formatted_message = format.color(message, format.GREEN)
-        bot.send_action(bot.config.connection.channel, formatted_message)
+        bot.send_channel_action(bot.config.messages.forget_superfluous)
     return True
 
 
@@ -161,9 +139,7 @@ def respond(bot, event):
     if not matches:
         return False
 
-    message = matches[0][1]
-    formatted_message = format.color(message, format.GREEN)
-    bot.send_action(bot.config.connection.channel, formatted_message)
+    bot.send_channel_action(matches[0][1])
     return True
 
 

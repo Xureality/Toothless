@@ -97,3 +97,7 @@ class Bot(SimpleBot):
             dispatch(private_message_handlers, self, event,
                      normalise(match.group('command')) if match else None,
                      match.group('args').strip() if match else None)
+
+    def send_channel_action(self, message, **kwargs):
+        formatted_message = '\x0303' + message.format(**kwargs)
+        self.send_action(self.config.connection.channel, formatted_message)

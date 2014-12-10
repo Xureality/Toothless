@@ -61,6 +61,7 @@ def purge_commands(bot, event, command, args):
         bot.send_action(event.source, message)
     return True
 
+
 @command_handler('reload_config')
 def reload_config(bot, event, command, args):
     bot.load_config()
