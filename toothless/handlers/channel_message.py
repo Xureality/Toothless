@@ -5,7 +5,7 @@ from heapq import heappush
 from string import Template
 
 from toothless.decorators import (command_handler, message_handler,
-                                  privileged_handler)
+                                  privileged_handler, rate_limited_handler)
 from toothless.models import Command
 from toothless.util import dispatch, humanise_list, normalise
 
@@ -71,6 +71,9 @@ def vomit(bot, event, command, args):
 
 
 @command_handler('learn', has_args=True)
+@privileged_handler(lambda bot, event: bot.send_channel_action(
+    bot.config.messages.learn_deny, nick=event.source
+))
 def learn(bot, event, command, args):
     trigger = args
     ident = normalise(trigger)
@@ -104,6 +107,9 @@ def learn(bot, event, command, args):
 
 
 @command_handler('forget', has_args=True)
+@privileged_handler(lambda bot, event: bot.send_channel_action(
+    bot.config.messages.deny, nick=event.source
+))
 def forget(bot, event, command, args):
     trigger = args
     ident = normalise(trigger)
@@ -121,11 +127,8 @@ def forget(bot, event, command, args):
 
 
 @message_handler
+@rate_limited_handler(lambda bot: bot.command_responses_rate_limiter)
 def respond(bot, event):
-    # Enforce rate limiting on a per-nick basis.
-    if bot.command_responses_rate_limiter.intend(event.source)[0] < 0:
-        return False
-
     matches = []
     for (ident, (regex, template)) in bot.commands_cache.iteritems():
         match = regex.search(event.message)
@@ -143,20 +146,13 @@ def respond(bot, event):
     return True
 
 
-privileged_channel_message_handlers = [
-    learn,
-    forget,
-]
-
-
 channel_message_handlers = [
     attack,
     eat,
     stomach,
     spit,
     vomit,
-    privileged_handler(
-        lambda *args: dispatch(privileged_channel_message_handlers, *args)
-    ),
+    learn,
+    forget,
     respond,
 ]
