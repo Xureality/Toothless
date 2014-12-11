@@ -25,6 +25,7 @@
             "charges {target}!",
             "unsheathes his teeth and bites {target}!"
         ],
+        "deny": "won't follow {nick}'s instructions!",
         "disconnect": "Gotta go save Hiccup from yet another gliding accident...",
         "eat": "gulps down {victim}!",
         "eat_inedible": "doesn't feel like eating {victim}!",
@@ -48,6 +49,7 @@
         "ignore_me": "will no longer acknowledge your entrances.",
         "ignore_me_superfluous": "is already ignoring you.",
         "learn": "has been trained by {nick}!",
+        "learn_deny": "doesn't want to be trained by {nick}!",
         "learn_error": "tilts his head in confusion towards {nick}...",
         "print_command": "{trigger} -> {response}",
         "purge_commands": "forgot all of his tricks!",

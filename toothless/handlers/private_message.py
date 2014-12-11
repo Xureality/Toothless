@@ -28,6 +28,9 @@ def ignore_me(bot, event, command, args):
 
 
 @command_handler('append_whitelist', has_args=True)
+@admin_handler(lambda bot, event: bot.send_action(
+    event.source, bot.config.messages.deny.format(nick=event.source)
+))
 def append_whitelist(bot, event, command, args):
     nicks = set(args.split())
     new_nicks = nicks - bot.state.privileged_nicks
@@ -49,6 +52,9 @@ def append_whitelist(bot, event, command, args):
 
 
 @command_handler('purge_commands')
+@admin_handler(lambda bot, event: bot.send_action(
+    event.source, bot.config.messages.deny.format(nick=event.source)
+))
 def purge_commands(bot, event, command, args):
     if bot.state.commands:
         bot.state.commands.clear()
@@ -63,6 +69,9 @@ def purge_commands(bot, event, command, args):
 
 
 @command_handler('reload_config')
+@admin_handler(lambda bot, event: bot.send_action(
+    event.source, bot.config.messages.deny.format(nick=event.source)
+))
 def reload_config(bot, event, command, args):
     bot.load_config()
     bot.load_state()
@@ -70,23 +79,19 @@ def reload_config(bot, event, command, args):
 
 
 @command_handler('terminate')
+@admin_handler(lambda bot, event: bot.send_action(
+    event.source, bot.config.messages.deny.format(nick=event.source)
+))
 def terminate(bot, event, command, args):
     bot.disconnect(bot.config.messages.disconnect)
     return True
 
 
-admin_private_message_handlers = [
+private_message_handlers = [
+    list_commands,
+    ignore_me,
     append_whitelist,
     purge_commands,
     reload_config,
     terminate,
-]
-
-
-private_message_handlers = [
-    list_commands,
-    ignore_me,
-    admin_handler(
-        lambda *args: dispatch(admin_private_message_handlers, *args)
-    ),
 ]
