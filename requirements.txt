@@ -1,3 +1,4 @@
+cunidecode==0.0.2
 ircutils==0.1.4
 jsonobject==0.6.1
 monotonic==0.1
