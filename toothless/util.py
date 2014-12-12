@@ -1,6 +1,7 @@
 import re
 
 from collections import deque
+from cunidecode import unidecode
 from jsonobject.base_properties import AssertTypeProperty
 from monotonic import monotonic
 
@@ -83,4 +84,8 @@ def humanise_list(items, zero_items='nothing', one_item_prefix='just '):
 
 
 def normalise(string):
-    return NORMALISED_REPRESENTATION_STRIPPED_CHARS.sub('', string).lower()
+    transliterated_string = unidecode(string.decode('utf-8'))
+    normalised_string = NORMALISED_REPRESENTATION_STRIPPED_CHARS.sub(
+        '', transliterated_string
+    ).lower()
+    return normalised_string
