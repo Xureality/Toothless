@@ -39,7 +39,7 @@ Toothless requires **Python 2.7** and uses **[ircutils](https://github.com/krace
 ## Installation (assuming sudo)
 
 ### Debian
-`apt-get install virtualenv python pythondev`
+`apt-get install virtualenv python python-dev`
 
 `virtualenv Toothless`
 
