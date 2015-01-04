@@ -35,3 +35,28 @@ Toothless requires **Python 2.7** and uses **[ircutils](https://github.com/krace
 `Toothless! learn trigger -> response` adds a trigger&ndash;response pair. Triggers are parsed as regular expressions. Responses are parsed as Python template strings; supplied substitution placeholders include the triggerer's nick (as `${nick}`) and any of the trigger's named groups. Only admins and whitelisted nicks can use this command.
 
 `Toothless! forget trigger` removes the corresponding trigger&ndash;response pair. Only admins and whitelisted nicks can use this command.
+
+## Installation (assuming sudo)
+
+### Debian
+`apt-get install virtualenv python pythondev`
+
+`virtualenv Toothless`
+
+`git clone https://github.com/Tmplt/Toothless.git`
+
+`cd Toothless/`
+
+Configurate config.json and state.json
+
+`source bin/activate`
+
+`pip install -r requirements.txt`
+
+`python -m --config ./config.json --state ./state.json`
+
+### Arch Linux (assumin python and python2)
+
+`pacman -S python2-virtualenv python2`
+
+same as Debian
