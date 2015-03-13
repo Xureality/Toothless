@@ -2,7 +2,13 @@
 
 Toothless is an IRC bot. Toothless welcomes users, responds to trigger phrases, and eats stuff.
 
-Toothless requires **Python 2.7** and uses **[ircutils](https://github.com/kracekumar/ircutils)**.
+Toothless is written in **Python 2.7** and requires:
+
+**[ircutils](https://github.com/kracekumar/ircutils)**
+
+**[mechanize](http://wwwsearch.sourceforge.net/mechanize/download.html)**
+
+**[dice](https://pypi.python.org/pypi/dice)**
 
 ## Commands
 
