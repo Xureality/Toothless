@@ -4,6 +4,7 @@ import dice
 
 from heapq import heappush
 from string import Template
+from mechanize import Browser
 
 from toothless.decorators import (command_handler, message_handler,
                                   privileged_handler, rate_limited_handler)
@@ -147,7 +148,16 @@ def respond(bot, event):
             )
 
     if not matches:
-        return False
+        if event.message.find("http") != -1:
+            br = Browser()
+            try:
+                br.open(event.message)
+                bot.send_channel_action(bot.config.messages.urltitle, title = br.title())
+            except:
+			    return False
+            return True
+        else:
+            return False
 
     bot.send_channel_action(matches[0][1])
     return True
