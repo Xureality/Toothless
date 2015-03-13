@@ -1,8 +1,10 @@
 import random
 import re
+import dice
 
 from heapq import heappush
 from string import Template
+from mechanize import Browser
 
 from toothless.decorators import (command_handler, message_handler,
                                   privileged_handler, rate_limited_handler)
@@ -124,7 +126,13 @@ def forget(bot, event, command, args):
     else:
         bot.send_channel_action(bot.config.messages.forget_superfluous)
     return True
-
+	
+@command_handler('roll', has_args=True)
+def roll(bot, event, command, args):
+    roll = dice.roll(args)
+    rresult = ', '.join(map(str, roll))
+    bot.send_channel_action(bot.config.messages.roll, result = rresult, nick = event.source)
+    return True
 
 @message_handler
 @rate_limited_handler(lambda bot: bot.command_responses_rate_limiter)
@@ -140,7 +148,16 @@ def respond(bot, event):
             )
 
     if not matches:
-        return False
+        if event.message.find("http") != -1:
+            br = Browser()
+            try:
+                br.open(event.message)
+                bot.send_channel_action(bot.config.messages.urltitle, title = br.title())
+            except:
+			    return False
+            return True
+        else:
+            return False
 
     bot.send_channel_action(matches[0][1])
     return True
@@ -155,4 +172,5 @@ channel_message_handlers = [
     learn,
     forget,
     respond,
+    roll,
 ]

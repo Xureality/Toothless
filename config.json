@@ -54,9 +54,11 @@
         "print_command": "{trigger} -> {response}",
         "purge_commands": "forgot all of his tricks!",
         "purge_commands_superfluous": "hasn't learned any tricks to forget!",
+        "roll": "rolls a {result} for {nick}!",
         "spit": "spits out {victim}!",
         "spit_superfluous": "hasn't eaten {victim} yet!",
         "stomach": "is digesting {victims}...",
+        "urltitle": "finds the URL title to be: {title}",
         "vomit": "empties his stomach!",
         "vomit_superfluous": "hasn't eaten anything yet!"
     },

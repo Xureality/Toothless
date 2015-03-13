@@ -43,9 +43,11 @@ class MessagesConfig(JsonObject):
     print_command = AsciiStringProperty(required=True)
     purge_commands = AsciiStringProperty(required=True)
     purge_commands_superfluous = AsciiStringProperty(required=True)
+    roll = AsciiStringProperty(required=True)
     spit = AsciiStringProperty(required=True)
     spit_superfluous = AsciiStringProperty(required=True)
     stomach = AsciiStringProperty(required=True)
+    urltitle = AsciiStringProperty(required=True)
     vomit = AsciiStringProperty(required=True)
     vomit_superfluous = AsciiStringProperty(required=True)
 
