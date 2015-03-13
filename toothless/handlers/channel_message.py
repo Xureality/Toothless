@@ -1,5 +1,6 @@
 import random
 import re
+import dice
 
 from heapq import heappush
 from string import Template
@@ -124,7 +125,13 @@ def forget(bot, event, command, args):
     else:
         bot.send_channel_action(bot.config.messages.forget_superfluous)
     return True
-
+	
+@command_handler('roll', has_args=True)
+def roll(bot, event, command, args):
+    roll = dice.roll(args)
+    rresult = ', '.join(map(str, roll))
+    bot.send_channel_action(bot.config.messages.roll, result = rresult, nick = event.source)
+    return True
 
 @message_handler
 @rate_limited_handler(lambda bot: bot.command_responses_rate_limiter)
@@ -155,4 +162,5 @@ channel_message_handlers = [
     learn,
     forget,
     respond,
+    roll,
 ]
