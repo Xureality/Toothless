@@ -153,8 +153,8 @@ def respond(bot, event):
             try:
                 br.set_handle_robots(False)
                 br.open(event.message)
-                title = format.bold(br.title())
-                bot.send_channel_action(bot.config.messages.urltitle, title)
+                # title = format.bold(br.title())
+                bot.send_channel_action(bot.config.messages.urltitle, title = br.title())
             except:
 			    return False
             return True
