@@ -14,7 +14,7 @@ from toothless.util import dispatch, humanise_list, normalise
 
 
 LEARN_COMMAND = re.compile('(?P<trigger>.+) -> (?P<response>.+)')
-
+DICEROLL = re.compile ('(?P<dicenum>\d*)d(?P<diceface>\d+)')
 
 @command_handler('attack', has_args=True)
 def attack(bot, event, command, args):
@@ -127,18 +127,37 @@ def forget(bot, event, command, args):
     else:
         bot.send_channel_action(bot.config.messages.forget_superfluous)
     return True
-	
+
 @command_handler('roll', has_args=True)
 def roll(bot, event, command, args):
+    #hardcapped safeguaard, the best kind.
+    match = DICEROLL.match(args)
     try:
-        roll = dice.roll(args)
-        rresult = ', '.join(map(str, roll))
-        bot.send_channel_action(bot.config.messages.roll, result = rresult, nick = event.source)
-        return True
-    except OverflowError:
-        bot.send_channel_action(bot.config.messages.nodice, nick = event.source)
+        dicenum = int(match.group('dicenum'))
     except:
+        dicenum = 1
+    try:
+        diceface = int(match.group('diceface'))
+    except:
+        diceface = 0
+    #yeah, i'm that paranoid
+    
+    if dicenum <= 20 and dicenum >= 1 and diceface <= 1024 and diceface >= 1:
+        try:
+            roll = dice.roll(args)
+            rresult = ', '.join(map(str, roll))
+            bot.send_channel_action(bot.config.messages.roll, result = rresult, nick = event.source)
+            return True
+        except OverflowError:
+            bot.send_channel_action(bot.config.messages.nodice, nick = event.source)
+            return False
+        except:
+            bot.send_channel_action(bot.config.messages.diceerr, nick = event.source)
+            return False
+    else:
         bot.send_channel_action(bot.config.messages.diceerr, nick = event.source)
+        return False
+
 
 @message_handler
 @rate_limited_handler(lambda bot: bot.command_responses_rate_limiter)
@@ -161,7 +180,7 @@ def respond(bot, event):
                 br.open(event.message)
                 bot.send_channel_action(bot.config.messages.urltitle, title = format.bold('\"' + br.title() + '\"'))
             except:
-			    return False
+                return False
             return True
         else:
             return False
