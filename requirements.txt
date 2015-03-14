@@ -1,4 +1,11 @@
+argparse==1.2.1
 cunidecode==0.0.2
+dice==1.0.2
+distribute==0.6.24
+docopt==0.6.2
 ircutils==0.1.4
 jsonobject==0.6.1
+mechanize==0.2.5
 monotonic==0.1
+pyparsing==2.0.3
+wsgiref==0.1.2

@@ -5,6 +5,7 @@ import dice
 from heapq import heappush
 from string import Template
 from mechanize import Browser
+from ircutils import format
 
 from toothless.decorators import (command_handler, message_handler,
                                   privileged_handler, rate_limited_handler)
@@ -129,10 +130,15 @@ def forget(bot, event, command, args):
 	
 @command_handler('roll', has_args=True)
 def roll(bot, event, command, args):
-    roll = dice.roll(args)
-    rresult = ', '.join(map(str, roll))
-    bot.send_channel_action(bot.config.messages.roll, result = rresult, nick = event.source)
-    return True
+    try:
+        roll = dice.roll(args)
+        rresult = ', '.join(map(str, roll))
+        bot.send_channel_action(bot.config.messages.roll, result = rresult, nick = event.source)
+        return True
+    except OverflowError:
+        bot.send_channel_action(bot.config.messages.nodice, nick = event.source)
+    except:
+        bot.send_channel_action(bot.config.messages.diceerr, nick = event.source)
 
 @message_handler
 @rate_limited_handler(lambda bot: bot.command_responses_rate_limiter)
@@ -151,8 +157,9 @@ def respond(bot, event):
         if event.message.find("http") != -1:
             br = Browser()
             try:
+                br.set_handle_robots(False)
                 br.open(event.message)
-                bot.send_channel_action(bot.config.messages.urltitle, title = br.title())
+                bot.send_channel_action(bot.config.messages.urltitle, title = format.bold('\"' + br.title() + '\"'))
             except:
 			    return False
             return True

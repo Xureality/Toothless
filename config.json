@@ -6,7 +6,7 @@
         "password": "",
         "real_name": "Toothless",
         "server": {
-            "address": "irc.host.com",
+            "address": "irc.host.tld",
             "port": 6697,
             "use_ssl": true
         },
@@ -55,6 +55,8 @@
         "purge_commands": "forgot all of his tricks!",
         "purge_commands_superfluous": "hasn't learned any tricks to forget!",
         "roll": "rolls a {result} for {nick}!",
+        "nodice": "can't find a dice big enough for {nick}...",
+        "diceerr": "can't find such a dice for {nick}...",
         "spit": "spits out {victim}!",
         "spit_superfluous": "hasn't eaten {victim} yet!",
         "stomach": "is digesting {victims}...",
