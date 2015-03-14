@@ -45,6 +45,7 @@ class MessagesConfig(JsonObject):
     purge_commands_superfluous = AsciiStringProperty(required=True)
     roll = AsciiStringProperty(required=True)
     nodice = AsciiStringProperty(required=True)
+    diceerr = AsciiStringProperty(required=True)
     spit = AsciiStringProperty(required=True)
     spit_superfluous = AsciiStringProperty(required=True)
     stomach = AsciiStringProperty(required=True)

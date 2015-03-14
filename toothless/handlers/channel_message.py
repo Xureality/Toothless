@@ -137,6 +137,8 @@ def roll(bot, event, command, args):
         return True
     except OverflowError:
         bot.send_channel_action(bot.config.messages.nodice, nick = event.source)
+    except:
+        bot.send_channel_action(bot.config.messages.diceerr, nick = event.source)
 
 @message_handler
 @rate_limited_handler(lambda bot: bot.command_responses_rate_limiter)
